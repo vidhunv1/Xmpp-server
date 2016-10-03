@@ -5,7 +5,10 @@ defmodule Spotlight.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", Spotlight do
+  scope "/v1", Spotlight do
     pipe_through :api
+
+    resources "/users", UserController, only: [:create, :show, :update]
+    get "/users/verify", UserController, :verify
   end
 end
