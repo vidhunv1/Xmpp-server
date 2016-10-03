@@ -8,7 +8,8 @@ use Mix.Config
 # General application configuration
 config :spotlight_api,
   namespace: Spotlight,
-  ecto_repos: [Spotlight.Repo]
+  ecto_repos: [Spotlight.Repo],
+  authy_api_token: "Sdb4XUOTj72PrVGqh79L7rvz4R8oSQ1T"
 
 # Configures the endpoint
 config :spotlight_api, Spotlight.Endpoint,
