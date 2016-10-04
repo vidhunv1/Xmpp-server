@@ -40,16 +40,13 @@ defmodule Spotlight.UserController do
             |> render("show.json", %{user: updated_user, message: "OTP verify success.", status: "success"})
           {:error, reason} ->
             conn
-            # |> render("error.json", reason) 
             |> render("error.json", %{message: "No user found.", code: ""})
         end
       {:ok, :false, _body} ->
         conn
-        # |> render("error.json", "Wrong otp")
         |> render("error.json", %{message: "Incorrect OTP", code: 401})
       {:error, reason} ->
         conn
-        # |> render("error.json", reason)
         |> render("error.json", %{message: "Error with sms", code: 500})
     end
   end
