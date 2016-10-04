@@ -21,7 +21,7 @@ defmodule Authy do
     |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
   end
 
-  def start_verification(country_code, phone) do
+  def send_otp(country_code, phone) do
   	Authy.start
 
   	if is_binary(api_key) do
@@ -30,7 +30,7 @@ defmodule Authy do
 
   		case Authy.post("/start", body, headers) do
   			{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-  				{:ok, body}
+  				{:ok, :true, body}
   			{:ok, %HTTPoison.Response{status_code: 400, body: body}} ->
   				{:error, body[:message]}
   			{:error, %HTTPoison.Error{reason: reason}} ->
@@ -50,9 +50,11 @@ defmodule Authy do
 
   		case Authy.get("/check?phone_number="<>phone<>"&country_code="<>country_code<>"&verification_code="<>verification_code, headers) do
   			{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-  				{:ok, body}
-  			{:ok, %HTTPoison.Response{status_code: 404, body: body}} ->
-  				{:error, body[:message]}
+  				{:ok, :true, body}
+  			{:ok, %HTTPoison.Response{status_code: 401, body: body}} ->
+  				{:ok, :false, body[:message]}
+        {:ok, %HTTPoison.Response{status_code: 404, body: body}} ->
+          {:ok, :false, body[:message]}  
   			{:error, %HTTPoison.Error{reason: reason}} ->
   				# Logger.warn("Authy: error making verification request." <> reason)
   				{:error, reason}

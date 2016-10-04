@@ -25,10 +25,9 @@ defmodule Spotlight.User do
   end
 
   @required_fields ~w()
-  @optional_fields ~w(name)
+  @optional_fields ~w(name verification_uuid verification_status)
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
-    |> validate_required([:name])
   end
 end
