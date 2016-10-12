@@ -30,12 +30,12 @@ defmodule Authy do
 
   		case Authy.post("/start", body, headers) do
   			{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-  				{:ok, :true, body}
-  			{:ok, %HTTPoison.Response{status_code: 400, body: body}} ->
+  				{:ok, body}
+  			{:ok, %HTTPoison.Response{status_code: _status, body: body}} ->
   				{:error, body[:message]}
   			{:error, %HTTPoison.Error{reason: reason}} ->
-  				# Logger.warn("Authy: error making verification request." <> reason)
   				{:error, reason}
+          # Logger.warn("Authy: error making verification request." <> reason)
   		end
   	else
   		Logger.warn "Authy API key not configured. Edit 'authy_api_token' in config.exs"
@@ -50,14 +50,12 @@ defmodule Authy do
 
   		case Authy.get("/check?phone_number="<>phone<>"&country_code="<>country_code<>"&verification_code="<>verification_code, headers) do
   			{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-  				{:ok, :true, body}
-  			{:ok, %HTTPoison.Response{status_code: 401, body: body}} ->
-  				{:ok, :false, body[:message]}
-        {:ok, %HTTPoison.Response{status_code: 404, body: body}} ->
-          {:ok, :false, body[:message]}  
+  				{:ok, 200, body}
+  			{:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+  				{:ok, status, body[:message]}
   			{:error, %HTTPoison.Error{reason: reason}} ->
-  				# Logger.warn("Authy: error making verification request." <> reason)
   				{:error, reason}
+          # Logger.warn("Authy: error making verification request." <> reason)
   		end
   	end
   end
