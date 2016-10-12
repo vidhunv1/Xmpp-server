@@ -8,7 +8,7 @@ defmodule Spotlight.Router do
   scope "/v1", Spotlight do
     pipe_through :api
 
-    resources "/users", UserController, only: [:create, :show, :update]
+    resources "/users", UserController, only: [:create, :show, :update, :get]
     post "/users/verify", UserController, :verify
   end
 end
