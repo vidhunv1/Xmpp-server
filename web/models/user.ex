@@ -22,6 +22,7 @@ defmodule Spotlight.User do
   def create_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> validate_length(:phone, min: 10)
     |> unique_constraint(:phone)
   end
 

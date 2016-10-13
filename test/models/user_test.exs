@@ -3,16 +3,16 @@ defmodule Spotlight.UserTest do
 
   alias Spotlight.User
 
-  @valid_attrs %{country_code: "some content", name: "some content", phone: "some content", phone_formatted: "some content", verification_status: true, verification_uuid: "some content"}
-  @invalid_attrs %{}
+  @create_valid_attrs %{phone: "9999999999", country_code: "91", phone_formatted: "919999999999"}
+  @create_invalid_attrs %{phone: "999999", country_code: "9", phone_formatted: "9999"}
 
-  test "changeset with valid attributes" do
-    changeset = User.changeset(%User{}, @valid_attrs)
+  test "changeset, create with valid attributes" do
+    changeset = User.create_changeset(%User{}, @create_valid_attrs)
     assert changeset.valid?
   end
 
-  test "changeset with invalid attributes" do
-    changeset = User.changeset(%User{}, @invalid_attrs)
+  test "changeset, create with invalid attributes" do
+    changeset = User.create_changeset(%User{}, @create_invalid_attrs)
     refute changeset.valid?
   end
 end

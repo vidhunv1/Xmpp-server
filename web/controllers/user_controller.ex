@@ -29,8 +29,8 @@ defmodule Spotlight.UserController do
 
       {:error, message} ->
         conn
-        |> put_status(200)
-        |> render("error.json", %{message: message, code: 400})  
+        |> put_status(:unprocessable_entity)
+        |> render("error.json", %{message: message, code: 422})  
     end
   end
 
@@ -66,17 +66,17 @@ defmodule Spotlight.UserController do
     render(conn, "show.json", user: user)
   end 
 
-  def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Repo.get!(User, id)
-    changeset = User.update_changeset(user, user_params)
+  # def update(conn, %{"id" => id, "user" => user_params}) do
+  #   user = Repo.get!(User, id)
+  #   changeset = User.update_changeset(user, user_params)
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        render(conn, "show.json", user: user)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
-    end
-  end
+  #   case Repo.update(changeset) do
+  #     {:ok, user} ->
+  #       render(conn, "show.json", user: user)
+  #     {:error, changeset} ->
+  #       conn
+  #       |> put_status(:unprocessable_entity)
+  #       |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+  #   end
+  # end
 end
