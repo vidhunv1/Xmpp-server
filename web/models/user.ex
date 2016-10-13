@@ -7,7 +7,7 @@ defmodule Spotlight.User do
     field :country_code, :string, size: 5
     field :phone_formatted, :string, size: 25
     field :verification_uuid, :string, size: 50
-    field :verification_status, :boolean, default: false
+    field :is_registered, :boolean, default: false
     field :is_cellphone, :boolean, default: false
     field :mobile_carrier, :string, size: 100
 
@@ -32,7 +32,7 @@ defmodule Spotlight.User do
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  @required_fields ~w(verification_status)
+  @required_fields ~w(is_registered)
   @optional_fields ~w()
   def verify_changeset(struct, params \\ %{}) do
     struct

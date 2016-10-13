@@ -17,12 +17,17 @@ defmodule Spotlight.UserView do
         message: :null}
   end
 
+  def render("status.json", %{message: message, status: status}) do
+    %{status: status,
+      message: message}
+  end
+
   def render("user.json", %{user: user}) do
     %{id: user.id,
       name: user.name,
       phone: user.phone,
       country_code: user.country_code,
-      verification_status: user.verification_status}
+      is_registered: user.is_registered}
   end
 
   def render("error.json", %{code: code, message: message}) do

@@ -19,15 +19,18 @@ defmodule Spotlight.UserController do
           {:ok, user} ->
             conn
             |> put_status(:created)
-            |> render("show.json", %{user: user})
-          {:error, _changeset} ->
+            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})  
+          {:error, changeset} ->
+            # phone: {"has already been taken"}
             conn
             |> put_status(200)
-            |> render("show.json", %{user: %User{}})
+            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})  
         end
+
       {:error, message} ->
         conn
-        |> render("error.json", message)  
+        |> put_status(200)
+        |> render("error.json", %{message: message, code: 400})  
     end
   end
 
@@ -35,7 +38,7 @@ defmodule Spotlight.UserController do
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
         user = Repo.get_by(User, phone_formatted: country_code<>phone)
-        user_changes  =  %{"verification_status" => true}
+        user_changes  =  %{"is_registered" => true}
         changeset = User.verify_changeset(user, user_changes)
         
         case Repo.update(changeset) do
@@ -47,9 +50,11 @@ defmodule Spotlight.UserController do
             conn
             |> render("error.json", %{message: "No user found.", code: ""})
         end
+
       {:ok, status, _body} ->
         conn
         |> render("error.json", %{message: "Incorrect OTP", code: status})
+
       {:error, _reason} ->
         conn
         |> render("error.json", %{message: "Error with sms", code: 500})
