@@ -11,7 +11,7 @@ defmodule Spotlight.UserController do
       {:ok, message} ->
         user_params = %{"phone" => phone, 
                         "country_code" => country_code, 
-                        "phone_formatted" => country_code<>phone, 
+                        "phone_formatted" => country_code<>"-"<>phone,
                         "mobile_carrier" => message[:carrier], 
                         "is_cellphone" => message[:is_cellphone], 
                         "verification_uuid" => message[:uuid]}
@@ -39,7 +39,7 @@ defmodule Spotlight.UserController do
   def verify(conn, %{"user" => %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code}}) do
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
-        user = Repo.get_by(User, phone_formatted: country_code<>phone)
+        user = Repo.get_by(User, [country_code: country_code, phone: phone])
         user_changes  =  %{"is_registered" => true}
         changeset = User.verify_changeset(user, user_changes)
         
@@ -50,11 +50,27 @@ defmodule Spotlight.UserController do
             jwt = Guardian.Plug.current_token(new_conn)
             {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
 
-            new_conn
-            |> put_status(201)
-            |> put_resp_header("authorization", "Bearer "<>jwt)
-            |> put_resp_header("x-expires", to_string(exp))
-            |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+            #Ejabberd new user
+            host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
+            case :ejabberd_auth.try_register(user.phone_formatted, host, "spotlight") do
+              {:atomic, :ok} ->
+                new_conn
+                  |> put_status(201)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+              {:atomic, :exists} ->
+                new_conn
+                  |> put_status(200)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+              {_, _} ->
+                conn
+                  |> put_status(:unprocessable_entity)
+                  |> render("error.json", %{message: "Could not create user", code: 422})
+            end
+
           {:error, _reason} ->
             conn
             |> put_status(:unprocessable_entity)

@@ -9,7 +9,9 @@ use Mix.Config
 config :spotlight_api,
   namespace: Spotlight,
   ecto_repos: [Spotlight.Repo],
-  authy_api_token: "Sdb4XUOTj72PrVGqh79L7rvz4R8oSQ1T"
+  #vidhun
+  #authy_api_token: "Sdb4XUOTj72PrVGqh79L7rvz4R8oSQ1T"
+  authy_api_token: "jRUFkX6S1HVjFmx4LJaBCCfVYRx4LmoD"
 
 # Configures the endpoint
 config :spotlight_api, Spotlight.Endpoint,
@@ -32,6 +34,13 @@ config :guardian, Guardian,
   verify_issuer: true, # optional
   secret_key: "hsobcypdhgdoeihlakvujssgrt",
   serializer: Spotlight.GuardianSerializer
+
+config :ejabberd,
+  file: "config/ejabberd.yml",
+  log_path: 'logs/ejabberd.log'
+
+config :mnesia,
+  dir: 'mnesiadb/'  
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
