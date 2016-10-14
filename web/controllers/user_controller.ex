@@ -4,6 +4,8 @@ defmodule Spotlight.UserController do
 
   alias Spotlight.User
 
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:update]
+
   def create(conn, %{"user" => %{"phone" => phone, "country_code" => country_code}}) do
     case Authy.send_otp(country_code, phone) do
       {:ok, message} ->
@@ -16,11 +18,11 @@ defmodule Spotlight.UserController do
         changeset = User.create_changeset(%User{}, user_params)
 
         case Repo.insert(changeset) do
-          {:ok, user} ->
+          {:ok, _user} ->
             conn
             |> put_status(:created)
             |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})  
-          {:error, changeset} ->
+          {:error, _changeset} ->
             # phone: {"has already been taken"}
             conn
             |> put_status(200)
@@ -44,9 +46,15 @@ defmodule Spotlight.UserController do
         case Repo.update(changeset) do
           {:ok, updated_user} ->
             #Generate user access, refresh tokens
-            conn
+            new_conn = Guardian.Plug.api_sign_in(conn, user)
+            jwt = Guardian.Plug.current_token(new_conn)
+            {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
+
+            new_conn
             |> put_status(201)
-            |> render("show.json", %{user: updated_user, message: "OTP verify success", status: "success"})
+            |> put_resp_header("authorization", "Bearer "<>jwt)
+            |> put_resp_header("x-expires", to_string(exp))
+            |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
           {:error, _reason} ->
             conn
             |> put_status(:unprocessable_entity)
@@ -70,17 +78,17 @@ defmodule Spotlight.UserController do
     render(conn, "show.json", user: user)
   end 
 
-  # def update(conn, %{"id" => id, "user" => user_params}) do
-  #   user = Repo.get!(User, id)
-  #   changeset = User.update_changeset(user, user_params)
+  def update(conn, %{"user" => user_params}) do
+     user = Guardian.Plug.current_resource(conn)
+     changeset = User.update_changeset(user, user_params)
 
-  #   case Repo.update(changeset) do
-  #     {:ok, user} ->
-  #       render(conn, "show.json", user: user)
-  #     {:error, changeset} ->
-  #       conn
-  #       |> put_status(:unprocessable_entity)
-  #       |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
-  #   end
-  # end
+     case Repo.update(changeset) do
+       {:ok, user} ->
+         render(conn, "show.json", user: user)
+       {:error, changeset} ->
+         conn
+         |> put_status(:unprocessable_entity)
+         |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+     end
+   end
 end

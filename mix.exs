@@ -37,10 +37,11 @@ defmodule Spotlight.Mixfile do
      {:postgrex, ">= 0.12.1"},
      {:gettext, "~> 0.11"},
      {:comeonin, "~> 2.0"},
-     # {:guardian, "~> 0.12.0"},
+     {:guardian, "~> 0.13.0"},
      {:cors_plug, "~> 1.1"},
      # {:ejabberd, ">= 16.06.0", github: "processone/ejabberd"},
      {:httpoison, "~> 0.9.0"},
+     {:jose, "~> 1.8"},
      {:cowboy, "~> 1.0"}]
   end
 
