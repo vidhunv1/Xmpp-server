@@ -43,21 +43,25 @@ defmodule Spotlight.UserController do
         
         case Repo.update(changeset) do
           {:ok, updated_user} ->
+            #Generate user access, refresh tokens
             conn
             |> put_status(201)
-            |> render("show.json", %{user: updated_user, message: "OTP verify success.", status: "success"})
+            |> render("show.json", %{user: updated_user, message: "OTP verify success", status: "success"})
           {:error, _reason} ->
             conn
-            |> render("error.json", %{message: "No user found.", code: ""})
+            |> put_status(:unprocessable_entity)
+            |> render("error.json", %{message: "No user found", code: 422})
         end
 
       {:ok, status, _body} ->
         conn
+        |> put_status(:unauthorized)
         |> render("error.json", %{message: "Incorrect OTP", code: status})
 
       {:error, _reason} ->
         conn
-        |> render("error.json", %{message: "Error with sms", code: 500})
+        |> put_status(:internal_server_error)
+        |> render("error.json", %{message: "Error sending SMS", code: 500})
     end
   end
 
