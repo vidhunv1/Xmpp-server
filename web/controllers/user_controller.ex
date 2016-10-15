@@ -9,11 +9,11 @@ defmodule Spotlight.UserController do
   def create(conn, %{"user" => %{"phone" => phone, "country_code" => country_code}}) do
     case Authy.send_otp(country_code, phone) do
       {:ok, message} ->
-        user_params = %{"phone" => phone, 
-                        "country_code" => country_code, 
+        user_params = %{"phone" => phone,
+                        "country_code" => country_code,
                         "phone_formatted" => country_code<>"-"<>phone,
-                        "mobile_carrier" => message[:carrier], 
-                        "is_cellphone" => message[:is_cellphone], 
+                        "mobile_carrier" => message[:carrier],
+                        "is_cellphone" => message[:is_cellphone],
                         "verification_uuid" => message[:uuid]}
         changeset = User.create_changeset(%User{}, user_params)
 
@@ -21,18 +21,18 @@ defmodule Spotlight.UserController do
           {:ok, _user} ->
             conn
             |> put_status(:created)
-            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})  
+            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})
           {:error, _changeset} ->
             # phone: {"has already been taken"}
             conn
             |> put_status(200)
-            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})  
+            |> render("status.json", %{status: "success", message: "OTP sent to number +"<>country_code<>" "<>phone})
         end
 
       {:error, message} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render("error.json", %{message: message, code: 422})  
+        |> render("error.json", %{message: message, code: 422})
     end
   end
 
@@ -42,7 +42,6 @@ defmodule Spotlight.UserController do
         user = Repo.get_by(User, [country_code: country_code, phone: phone])
         user_changes  =  %{"is_registered" => true}
         changeset = User.verify_changeset(user, user_changes)
-        
         case Repo.update(changeset) do
           {:ok, updated_user} ->
             #Generate user access, refresh tokens
@@ -92,7 +91,7 @@ defmodule Spotlight.UserController do
   def show(conn, %{"id" => id}) do
     user = Repo.get!(User, id)
     render(conn, "show.json", user: user)
-  end 
+  end
 
   def update(conn, %{"user" => user_params}) do
      user = Guardian.Plug.current_resource(conn)
