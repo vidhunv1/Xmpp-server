@@ -35,12 +35,12 @@ config :guardian, Guardian,
   secret_key: "hsobcypdhgdoeihlakvujssgrt",
   serializer: Spotlight.GuardianSerializer
 
-config :ejabberd,
-  file: "config/ejabberd.yml",
-  log_path: 'logs/ejabberd.log'
+  #config :ejabberd,
+  #file: "config/ejabberd.yml",
+  #log_path: 'logs/ejabberd.log'
 
-config :mnesia,
-  dir: 'mnesiadb/'  
+  #config :mnesia,
+  #dir: 'mnesiadb/'  
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
