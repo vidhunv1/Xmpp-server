@@ -19,10 +19,10 @@ defmodule Spotlight.UserView do
 
   def render("verified_token.json", %{user: user, access_token: token, exp: exp}) do
       %{status: "success",
-        message: :"Mobile number verified"
+        message: :"Mobile number verified",
         user: render_one(user, Spotlight.UserView, "user.json"),
         access_token: token,
-        expiry: exp,
+        expiry: exp
         }
   end
 
