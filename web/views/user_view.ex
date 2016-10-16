@@ -36,6 +36,7 @@ defmodule Spotlight.UserView do
       name: user.name,
       phone: user.phone,
       country_code: user.country_code,
+      phone_formatted: user.phone_formatted,
       is_registered: user.is_registered}
   end
 
