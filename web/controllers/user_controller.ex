@@ -36,11 +36,15 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def verify(conn, %{"user" => %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code}}) do
+  def verify(conn, 
+    %{"user" => 
+      %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code, "notification_token" => notification_token}}
+    ) do
+    
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
         user = Repo.get_by(User, [country_code: country_code, phone: phone])
-        user_changes  =  %{"is_registered" => true}
+        user_changes  =  %{"is_registered" => true, "notification_token" => notification_token}
         changeset = User.verify_changeset(user, user_changes)
         case Repo.update(changeset) do
           {:ok, updated_user} ->
@@ -86,10 +90,10 @@ defmodule Spotlight.UserController do
         |> put_status(:unauthorized)
         |> render("error.json", %{message: "Incorrect OTP", code: status})
 
-      {:error, _reason} ->
+      {:error, reason} ->
         conn
         |> put_status(:internal_server_error)
-        |> render("error.json", %{message: "Error sending SMS", code: 500})
+        |> render("error.json", %{message: reason, code: 500})
     end
   end
 

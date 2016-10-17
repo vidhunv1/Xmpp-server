@@ -10,6 +10,7 @@ defmodule Spotlight.User do
     field :is_registered, :boolean, default: false
     field :is_cellphone, :boolean, default: false
     field :mobile_carrier, :string, size: 100
+    field :notification_token, :string, size: 250
 
     timestamps()
   end
@@ -27,13 +28,13 @@ defmodule Spotlight.User do
   end
 
   @required_fields ~w()
-  @optional_fields ~w(name)
+  @optional_fields ~w(name notification_token)
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  @required_fields ~w(is_registered)
+  @required_fields ~w(is_registered notification_token)
   @optional_fields ~w()
   def verify_changeset(struct, params \\ %{}) do
     struct
