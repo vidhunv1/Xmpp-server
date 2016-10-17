@@ -34,7 +34,7 @@ defmodule Spotlight.User do
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  @required_fields ~w(is_registered notification_token)
+  @required_fields ~w(is_registered)
   @optional_fields ~w()
   def verify_changeset(struct, params \\ %{}) do
     struct

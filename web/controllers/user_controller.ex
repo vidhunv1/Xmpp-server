@@ -38,7 +38,7 @@ defmodule Spotlight.UserController do
 
   def verify(conn, 
     %{"user" => 
-      %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code, "notification_token" => notification_token}}
+      %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code}}
     ) do
     
     case Authy.verify_otp(country_code, phone, verification_code) do
