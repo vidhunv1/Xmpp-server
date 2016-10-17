@@ -44,7 +44,7 @@ defmodule Spotlight.UserController do
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
         user = Repo.get_by(User, [country_code: country_code, phone: phone])
-        user_changes  =  %{"is_registered" => true, "notification_token" => notification_token}
+        user_changes  =  %{"is_registered" => true}
         changeset = User.verify_changeset(user, user_changes)
         case Repo.update(changeset) do
           {:ok, updated_user} ->
