@@ -1,6 +1,7 @@
-defmodule Spotlight.User do
+  defmodule Spotlight.User do
   use Spotlight.Web, :model
 
+  @primary_key {:username, :string, []}
   schema "users" do
     field :name, :string, size: 50
     field :phone, :string, size: 20
@@ -11,14 +12,12 @@ defmodule Spotlight.User do
     field :is_cellphone, :boolean, default: false
     field :mobile_carrier, :string, size: 100
     field :notification_token, :string, size: 250
-
-    timestamps()
-  end
+    timestamps default: "2016-01-01 00:00:01"  end
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  @required_fields ~w(phone country_code phone_formatted)
+  @required_fields ~w(phone country_code phone_formatted username)
   @optional_fields ~w(verification_uuid is_cellphone mobile_carrier)
   def create_changeset(struct, params \\ %{}) do
     struct
@@ -34,7 +33,7 @@ defmodule Spotlight.User do
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  @required_fields ~w(is_registered)
+  @required_fields ~w(is_registered username)
   @optional_fields ~w()
   def verify_changeset(struct, params \\ %{}) do
     struct

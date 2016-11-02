@@ -12,6 +12,7 @@ defmodule Spotlight.UserController do
         user_params = %{"phone" => phone,
                         "country_code" => country_code,
                         "phone_formatted" => country_code<>"-"<>phone,
+                        "username" => country_code<>"-"<>phone,
                         "mobile_carrier" => message[:carrier],
                         "is_cellphone" => message[:is_cellphone],
                         "verification_uuid" => message[:uuid]}
@@ -36,11 +37,14 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def verify(conn, 
+  def verify(conn,
     %{"user" => 
       %{"phone" => phone, "country_code" => country_code, "verification_code" => verification_code}}
     ) do
-    
+
+    #Test
+    pass = "spotlight"
+
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
         user = Repo.get_by(User, [country_code: country_code, phone: phone])
@@ -48,36 +52,37 @@ defmodule Spotlight.UserController do
         changeset = User.verify_changeset(user, user_changes)
         case Repo.update(changeset) do
           {:ok, updated_user} ->
+            IO.inspect updated_user
             #Generate user access, refresh tokens
             new_conn = Guardian.Plug.api_sign_in(conn, user)
+
             jwt = Guardian.Plug.current_token(new_conn)
             {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
 
             #Ejabberd new user
-            #host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
-            #case :ejabberd_auth.try_register(user.phone_formatted, host, "spotlight") do
-          #  {:atomic, :ok} ->
-            #     new_conn
-            #      |> put_status(201)
-            #      |> put_resp_header("authorization", "Bearer "<>jwt)
-            #      |> put_resp_header("x-expires", to_string(exp))
-            #      |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
-          #  {:atomic, :exists} ->
-            #      new_conn
-            #      |> put_status(200)
-            #      |> put_resp_header("authorization", "Bearer "<>jwt)
-            #      |> put_resp_header("x-expires", to_string(exp))
-            #      |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
-          #  {first, last} ->
-            #      conn
-            #      |> put_status(:unprocessable_entity)
-            #      |> render("error.json", %{message: "Could not create user "<>to_string(first)<>" "<>to_string(last), code: 422})
-            #end
-            new_conn
-              |> put_status(200)
-              |> put_resp_header("authorization", "Bearer "<>jwt)
-              |> put_resp_header("x-expires", to_string(exp))
-              |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+            host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
+            
+            case :ejabberd_auth.try_register(user.phone_formatted, host, pass) do
+            {:atomic, :ok} ->
+              #Not working without setting password. sql error?
+                :ejabberd_auth.set_password(user.phone_formatted, host, pass)
+                new_conn
+                  |> put_status(201)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+            {:atomic, :exists} ->
+                :ejabberd_auth.set_password(user.phone_formatted, host, pass)
+                new_conn
+                  |> put_status(200)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+            {first, last} ->
+                  conn
+                  |> put_status(:unprocessable_entity)
+                  |> render("error.json", %{message: "Could not create user "<>to_string(first)<>" "<>to_string(last), code: 422})
+            end
 
           {:error, _reason} ->
             conn
@@ -97,10 +102,10 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
-    render(conn, "show.json", user: user)
-  end
+#  def show(conn, %{"id" => id}) do
+#    user = Repo.get!(User, id)
+#    render(conn, "show.json", user: user)
+#  end
 
   def update(conn, %{"user" => user_params}) do
      user = Guardian.Plug.current_resource(conn)

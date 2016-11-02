@@ -11,7 +11,8 @@ config :spotlight_api,
   ecto_repos: [Spotlight.Repo],
   #vidhun
   #authy_api_token: "Sdb4XUOTj72PrVGqh79L7rvz4R8oSQ1T"
-  authy_api_token: "jRUFkX6S1HVjFmx4LJaBCCfVYRx4LmoD"
+  authy_api_token: "jRUFkX6S1HVjFmx4LJaBCCfVYRx4LmoD",
+  fcm_key: "AIzaSyASuRqvCZT1jgt4oQtHkNXyEkw_FbAWN90"
 
 # Configures the endpoint
 config :spotlight_api, Spotlight.Endpoint,
@@ -35,12 +36,9 @@ config :guardian, Guardian,
   secret_key: "hsobcypdhgdoeihlakvujssgrt",
   serializer: Spotlight.GuardianSerializer
 
-  #config :ejabberd,
-  #file: "config/ejabberd.yml",
-  #log_path: 'logs/ejabberd.log'
-
-  #config :mnesia,
-  #dir: 'mnesiadb/'  
+  config :ejabberd,
+  file: "config/ejabberd.yml",
+  log_path: 'logs/ejabberd.log'
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

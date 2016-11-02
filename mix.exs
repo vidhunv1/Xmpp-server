@@ -19,7 +19,7 @@ defmodule Spotlight.Mixfile do
   def application do
     [mod: {Spotlight, []},
      applications: [:phoenix, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cors_plug, :phoenix_pubsub, :guardian]]
+                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cors_plug, :phoenix_pubsub, :guardian, :ejabberd, :p1_pgsql, :p1_utils]]
   end
 
   # Specifies which paths to compile per environment.
@@ -31,6 +31,7 @@ defmodule Spotlight.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:phoenix, "~> 1.2.1"},
+     {:p1_utils, "~> 1.0"},
      {:exrm, "~> 1.0.8"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.0"},
@@ -39,7 +40,8 @@ defmodule Spotlight.Mixfile do
      {:comeonin, "~> 2.0"},
      {:guardian, "~> 0.13.0"},
      {:cors_plug, "~> 1.1"},
-     #{:ejabberd, ">= 16.06.0", github: "processone/ejabberd"},
+     {:ejabberd, ">= 16.09.0", github: "processone/ejabberd"},
+     {:p1_pgsql, ">= 1.1.0"},
      {:httpoison, "~> 0.9.0"},
      {:jose, "~> 1.8"},
      {:cowboy, "~> 1.0"}]

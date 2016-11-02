@@ -32,12 +32,12 @@ defmodule Spotlight.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
-      name: user.name,
+    %{name: user.name,
       phone: user.phone,
       country_code: user.country_code,
       phone_formatted: user.phone_formatted,
-      is_registered: user.is_registered}
+      is_registered: user.is_registered,
+      username: user.username}
   end
 
   def render("error.json", %{code: code, message: message}) do

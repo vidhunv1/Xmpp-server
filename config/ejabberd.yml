@@ -237,12 +237,12 @@ listen:
 ## If you want to use a different method,
 ## comment this line and enable the correct ones.
 ##
-auth_method: internal
+#auth_method: internal
 
 ##
 ## Store the plain passwords or hashed for SCRAM:
-## auth_password_format: plain
-## auth_password_format: scram
+#auth_password_format: plain
+auth_password_format: scram
 ##
 ## Define the FQDN if ejabberd doesn't detect it:
 ## fqdn: "server3.example.com"
@@ -258,7 +258,7 @@ auth_method: internal
 ## Authentication using SQL
 ## Remember to setup a database in the next section.
 ##
-## auth_method: sql
+auth_method: sql
 
 ##
 ## Authentication using PAM
@@ -341,21 +341,22 @@ auth_method: internal
 ## sql_port: 1234
 
 ##
-## PostgreSQL server:
+ #PostgreSQL server:
 ##
-## sql_type: pgsql
-## sql_server: "server"
-## sql_database: "database"
-## sql_username: "username"
-## sql_password: "password"
-##
+#
+sql_type: pgsql
+sql_server: "localhost"
+sql_database: "spotlight_api_dev"
+sql_username: "postgres"
+sql_password: "postgres"
+
 ## If you want to specify the port:
-## sql_port: 1234
+sql_port: 5432
 ##
 ## If you use PostgreSQL, have a large database, and need a
 ## faster but inexact replacement for "select count(*) from users"
 ##
-## pgsql_users_number_estimate: true
+pgsql_users_number_estimate: true
 
 ##
 ## SQLite:
@@ -372,7 +373,7 @@ auth_method: internal
 ##
 ## Number of connections to open to the database for each virtual host
 ##
-## sql_pool_size: 10
+sql_pool_size: 10
 
 ##
 ## Interval to make a dummy SQL request to keep the connections to the
@@ -571,6 +572,9 @@ language: "en"
 ##
 ## Modules enabled in all ejabberd virtual hosts.
 ##
+
+default_db: sql
+
 modules:
   mod_adhoc: {}
   mod_admin_extra: {}
@@ -578,7 +582,10 @@ modules:
     access: announce
   mod_blocking: {} # requires mod_privacy
   mod_caps: {}
-  mod_carboncopy: {}
+
+  mod_carboncopy: 
+    db_type: mnesia
+
   mod_client_state: {}
   mod_configure: {} # requires mod_adhoc
   mod_disco: {}
@@ -616,10 +623,9 @@ modules:
     ## XEP compliant, but increases resource comsumption
     ## ignore_pep_from_offline: false
     last_item_cache: false
-    plugins:
-      - "flat"
-      - "hometree"
-      - "pep" # pep requires mod_caps
+
+  ModOfflinePush: {}
+
   mod_register:
     ##
     ## Protect In-Band account registrations with CAPTCHA.
