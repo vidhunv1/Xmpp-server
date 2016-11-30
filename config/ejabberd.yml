@@ -111,7 +111,7 @@ hosts:
 ## by and what options to start it with.
 ##
 listen:
-  - 
+  -
     port: 5222
     module: ejabberd_c2s
     certfile: "/Users/vidhun/stairway/spotlight_api/priv/server.pem"
@@ -129,7 +129,7 @@ listen:
     stream_management: true
     shaper: c2s_shaper
     access: c2s
-  - 
+  -
     port: 5269
     module: ejabberd_s2s_in
     max_stanza_size: 131072
@@ -137,7 +137,7 @@ listen:
   ##
   ## ejabberd_service: Interact with external components (transports, ...)
   ##
-  ## - 
+  ## -
   ##   port: 8888
   ##   module: ejabberd_service
   ##   access: all
@@ -152,7 +152,7 @@ listen:
   ##
   ## ejabberd_stun: Handles STUN Binding requests
   ##
-  ## - 
+  ## -
   ##   port: 3478
   ##   transport: udp
   ##   module: ejabberd_stun
@@ -625,6 +625,7 @@ modules:
     last_item_cache: false
 
   ModOfflinePush: {}
+  ModPresenceDebug: {}
 
   mod_register:
     ##
