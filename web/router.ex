@@ -15,8 +15,11 @@ defmodule Spotlight.Router do
 
     resources "/users", UserController, only: [:create, :show, :get]
     post "/users/verify", UserController, :verify
-    put "/users/", UserController, :update
-    patch "/users/", UserController, :update
+    post "/users/register", UserController, :register
+    put "/users", UserController, :update
+    patch "/users", UserController, :update
+
+    resources "/contacts", PhoneContactController, only: [:create]
   end
 end
   

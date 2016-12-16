@@ -3,7 +3,7 @@ defmodule Spotlight.Repo.Migrations.CreateUser do
 
   def change do
     create table(:users) do
-      add :username, :string, primary_key: true
+      add :username, :string
     #  add :password, :string, null: false
     #  add :serverkey, :string, default: "", null: false
     #  add :salt, :string, default: "", null: false
@@ -18,7 +18,7 @@ defmodule Spotlight.Repo.Migrations.CreateUser do
       timestamps default: "2016-01-01 00:00:01"
     end
 
-    create unique_index(:users, [:phone])
-    create index(:users, [:phone_formatted])
+    create unique_index(:users, [:phone_formatted])
+    create index(:users, [:phone])
   end
 end

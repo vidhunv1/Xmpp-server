@@ -6,10 +6,10 @@ defmodule Spotlight.GuardianSerializer do
 
   def for_token(user = %User{}) do 
   	IO.inspect user
-  	{:ok, "User:#{user.username}" }
+  	{:ok, "User:#{user.id}" }
   end
   def for_token(_), do: { :error, "Unknown resource type" }
 
-  def from_token("User:" <> username), do: { :ok, Repo.get(User, username) }
+  def from_token("User:" <> id), do: { :ok, Repo.get(User, id) }
   def from_token(_), do: { :error, "Unknown resource type" }
 end
