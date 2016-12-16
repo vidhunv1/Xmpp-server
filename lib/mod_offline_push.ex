@@ -18,7 +18,7 @@ defmodule ModOfflinePush do
 
   def send_push(from, to, packet) do
     IO.inspect packet
-    #Fix bac match for presence messages
+    #Fix bad match for presence messages
     {:xmlel, "message" , _ , [ {:xmlel,"body",_, [xmlcdata: message] } ,_, _ ]} = packet
     {:jid, jid_to, _host, _, _, _, _} = to
     {:jid, jid_from, _, _, _, _, _} = from
