@@ -625,7 +625,7 @@ modules:
     last_item_cache: false
 
   ModOfflinePush: {}
-  ModPresenceDebug: {}
+  ModPacketInterceptor: {}
 
   mod_register:
     ##

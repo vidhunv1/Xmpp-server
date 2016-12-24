@@ -19,7 +19,10 @@ defmodule Spotlight.Mixfile do
   def application do
     [mod: {Spotlight, []},
      applications: [:phoenix, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :httpoison, :cors_plug, :phoenix_pubsub, :guardian, :ejabberd, :p1_pgsql, :p1_utils]]
+                    :phoenix_ecto, :postgrex, :comeonin, 
+                    :httpoison, :cors_plug, :phoenix_pubsub, 
+                    :guardian, :ejabberd, :p1_pgsql, :p1_utils,
+                    :ex_aws, :hackney, :poison]]
   end
 
   # Specifies which paths to compile per environment.
@@ -44,7 +47,10 @@ defmodule Spotlight.Mixfile do
      {:p1_pgsql, ">= 1.1.0"},
      {:httpoison, "~> 0.9.0"},
      {:jose, "~> 1.8"},
-     {:cowboy, "~> 1.0"}]
+     {:cowboy, "~> 1.0"},
+     {:ex_aws, "~> 1.0"},
+     {:poison, "~> 2.0"},
+     {:hackney, "~> 1.6"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

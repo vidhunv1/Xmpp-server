@@ -16,6 +16,8 @@ defmodule Spotlight.User do
     field :user_id, :string, size: 50
 
     has_many :phone_contacts, Spotlight.PhoneContact
+    has_one :bot_details, Spotlight.Bot
+    
     has_many :_contacts, Spotlight.Contact
     has_many :contacts, through: [:_contacts, :contact]
     timestamps default: "2016-01-01 00:00:01"  end

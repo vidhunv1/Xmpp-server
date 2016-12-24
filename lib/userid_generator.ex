@@ -1,9 +1,8 @@
 defmodule UseridGenerator do
   require Logger
-
   alias Spotlight.User
-  alias Spotlight.Repo
-  @chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" |> String.split("")
+  alias Spotlight.Repo  
+  @chars "abcdefghijklmnopqrstuvwxyz1234567890" |> String.split("")
   @default_length 8
 
   def generate() do

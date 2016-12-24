@@ -7,7 +7,7 @@ defmodule Spotlight.UserController do
   plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:update]
 
   def create(conn, %{"user" => %{"phone" => phone, "country_code" => country_code}}) do
-    case Authy.send_otp(country_code, phone) do
+    case AuthyTest.send_otp(country_code, phone) do
       {:ok, message} ->
         user_params = %{"phone" => phone,
                         "country_code" => country_code,
@@ -53,7 +53,7 @@ defmodule Spotlight.UserController do
       }) do
 
     user = Repo.get_by(User, [country_code: country_code, phone: phone])
-    case Authy.verify_otp(country_code, phone, verification_code) do
+    case AuthyTest.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, _body} ->
         #Test
         pass = "spotlight"
@@ -117,17 +117,17 @@ defmodule Spotlight.UserController do
   end
 
   def update(conn, %{"user" => user_params}) do
-     user = Guardian.Plug.current_resource(conn)
-     changeset = User.update_changeset(user, user_params)
+    user = Guardian.Plug.current_resource(conn)
+    changeset = User.update_changeset(user, user_params)
 
-     case Repo.update(changeset) do
-       {:ok, user} ->
-         render(conn, "show.json", user: user)
-       {:error, changeset} ->
-          Logger.debug inspect(changeset)
-          conn
-            |> put_status(:unprocessable_entity)
-            |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
-     end
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        render(conn, "show.json", user: user)
+      {:error, changeset} ->
+        Logger.debug inspect(changeset)
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
   end
 end
