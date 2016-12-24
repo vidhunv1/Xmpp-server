@@ -19,8 +19,8 @@ defmodule Spotlight.Mixfile do
   def application do
     [mod: {Spotlight, []},
      applications: [:phoenix, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, 
-                    :httpoison, :cors_plug, :phoenix_pubsub, 
+                    :phoenix_ecto, :postgrex, :comeonin,
+                    :httpoison, :cors_plug, :phoenix_pubsub,
                     :guardian, :ejabberd, :p1_pgsql, :p1_utils,
                     :ex_aws, :hackney, :poison]]
   end
@@ -43,7 +43,7 @@ defmodule Spotlight.Mixfile do
      {:comeonin, "~> 2.0"},
      {:guardian, "~> 0.13.0"},
      {:cors_plug, "~> 1.1"},
-     {:ejabberd, ">= 16.09.0", github: "processone/ejabberd"},
+     {:ejabberd, "~> 16.6"},
      {:p1_pgsql, ">= 1.1.0"},
      {:httpoison, "~> 0.9.0"},
      {:jose, "~> 1.8"},
