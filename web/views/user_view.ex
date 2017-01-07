@@ -37,6 +37,7 @@ defmodule Spotlight.UserView do
       country_code: user.country_code,
       phone_formatted: user.phone_formatted,
       is_registered: user.is_registered,
+      profile_dp: SpotlightApi.ImageUploader.url({user.profile_dp, user}),
       username: user.username,
       user_id: user.user_id}
   end

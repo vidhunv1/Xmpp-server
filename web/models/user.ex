@@ -1,5 +1,6 @@
 defmodule Spotlight.User do
   use Spotlight.Web, :model
+  use Arc.Ecto.Schema
 
   @primary_key {:id, :integer, []}
   schema "users" do
@@ -14,6 +15,7 @@ defmodule Spotlight.User do
     field :mobile_carrier, :string, size: 100
     field :notification_token, :string, size: 250
     field :user_id, :string, size: 50
+    field :profile_dp, SpotlightApi.ImageUploader.Type
 
     has_many :phone_contacts, Spotlight.PhoneContact
     has_one :bot_details, Spotlight.Bot
@@ -35,10 +37,11 @@ defmodule Spotlight.User do
   end
 
   @required_fields ~w()
-  @optional_fields ~w(name notification_token)
+  @optional_fields ~w(name notification_token profile_dp)
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
+    |> cast_attachments(params, [:profile_dp])
   end
 
   @required_fields ~w(is_registered username user_id)

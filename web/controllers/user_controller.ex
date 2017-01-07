@@ -65,7 +65,7 @@ defmodule Spotlight.UserController do
             "official" -> "o_"<>unique_id
           end
 
-        user_changes  =  %{"is_registered" => true, "username" => username, "user_id" => unique_id  }
+        user_changes  =  %{"is_registered" => true, "username" => username, "user_id" => unique_id}
         changeset = Spotlight.User.verify_changeset(user, user_changes)
 
         case Repo.update(changeset) do
@@ -128,6 +128,31 @@ defmodule Spotlight.UserController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+
+  def update(conn, %{"profile_dp" => image_data}) do
+    IO.inspect image_data
+    user = Guardian.Plug.current_resource(conn)
+    changeset = Spotlight.User.update_changeset(user, %{"profile_dp" => image_data})
+
+    IO.inspect changeset
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        render(conn, "show.json", user: user)
+      {:error, changeset} ->
+        Logger.debug inspect(changeset)
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    case Repo.get_by(User, [user_id: id, is_registered: true]) do
+      nil -> conn |> put_status(404) |> render("error.json", %{code: 404, message: "User not found"})
+      user -> render(conn, "show.json", user: user)
     end
   end
 end

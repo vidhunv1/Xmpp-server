@@ -43,6 +43,21 @@ config :ejabberd,
 config :mnesia,
   dir: 'mnesiadb/'
 
+config :arc,
+  bucket: "spotlight.test",
+  virtual_host: true
+
+config :ex_aws,
+  access_key_id: "AKIAJSPRHDKMGBXSDMZQ",
+  secret_access_key: "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",
+  region: "s3.ap-south-1.amazonaws.com",
+  host: "ap-south-1",
+  s3: [
+    scheme: "https://",
+    host: "s3.ap-south-1.amazonaws.com",
+    region: "ap-south-1"
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
