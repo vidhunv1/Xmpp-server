@@ -13,11 +13,11 @@ defmodule Spotlight.Router do
   scope "/v1", Spotlight do
     pipe_through :api
 
-    resources "/users", UserController, only: [:create, :show, :get]
+    post "/users", UserController, :create
     post "/users/verify", UserController, :verify
-    post "/users/register", UserController, :register
     put "/users", UserController, :update
     patch "/users", UserController, :update
+    get "/users/:id", UserController, :show
 
     resources "/contacts", PhoneContactController, only: [:create]
 
