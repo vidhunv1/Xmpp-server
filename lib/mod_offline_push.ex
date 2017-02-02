@@ -22,9 +22,10 @@ defmodule ModOfflinePush do
     {:xmlel, "message" , _ , [ {:xmlel,"body",_, [xmlcdata: message] } ,_, _ ]} = packet
     {:jid, jid_to, _host, _, _, _, _} = to
     {:jid, jid_from, _, _, _, _, _} = from
-    info("Offline Push : TO="<>jid_to<>" : FROM ="<>jid_from<>" : Message ="<>message)
 
-    user = Repo.get_by(User, [phone_formatted: jid_to])
+    user = Repo.get_by(User, [username: jid_to])
+
+    info("Offline Push : TO="<>jid_to<>" : FROM ="<>jid_from<>" : Message ="<>message)
     FCM.push([user.notification_token],
         %{notification:
           %{ title: jid_from, body: message, sound: "default"} })
