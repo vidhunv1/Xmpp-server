@@ -22,7 +22,7 @@ defmodule Spotlight.UserView do
         message: :"Mobile number verified",
         user: render_one(user, Spotlight.UserView, "user.json"),
         access_token: token,
-        expiry: exp
+        expires: exp
         }
   end
 

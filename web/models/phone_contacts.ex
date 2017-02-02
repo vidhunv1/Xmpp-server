@@ -9,11 +9,12 @@ defmodule Spotlight.PhoneContact do
   	belongs_to :user, Spotlight.User
   end
 
-  @required_fields ~w(phone country_code)
-  @optional_fields ~w(name)
+  @fields ~w(phone country_code name)
 
   def changeset(model, params \\  %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @fields)
+    |> validate_required([:phone, :country_code])
+    |> unique_constraint(:unique_user_phone_contact, name: :unique_user_phone_contact)
   end
 end

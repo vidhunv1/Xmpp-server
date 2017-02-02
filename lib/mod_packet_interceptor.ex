@@ -18,13 +18,14 @@ defmodule ModPacketInterceptor do
   end
 
   def on_filter_packet({from, to, xml} = packet) do
-  	info("Filtering packet: #{inspect {from, to, xml}}")
+  	info("Received packet: #{inspect {from, to, xml}}")
     {:jid, jid_from, _, _, _, _, _} = from
     case to do
       {:jid, "o_"<>id, _host, _, _, _, _} ->
         "u_"<>userid_from = jid_from
       	{:xmlel, "message" , _ , [ {:xmlel,"body",_, [xmlcdata: message] } ,_, _ ]} = xml
     		bot_user = Repo.get_by(User, [username: "o_"<>id]) |> Repo.preload([:bot_details]) 
+
         case BotHelper.forward_message(userid_from, message, bot_user.bot_details.post_url) do
           {:ok, _} ->
             #Message Delivered
@@ -35,6 +36,7 @@ defmodule ModPacketInterceptor do
         end
         :drop
       _ ->
+        info("Pass message: #{inspect {from, to, xml}}")
         packet
     end
   end

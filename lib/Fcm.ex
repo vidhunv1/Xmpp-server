@@ -42,8 +42,13 @@ defmodule FCM do
       |> Poison.encode!
 
     case HTTPoison.post(@base_url <> "/send", body, headers(:fcm)) do
-      { :ok, response } -> build_response(registration_ids, response)
-      error -> error
+      { :ok, response } -> 
+        Logger.info "FCM push ok"
+        build_response(registration_ids, response)
+      error -> 
+        Logger.info "FCM push error"
+        IO.inspect error
+        error
     end
   end
 
