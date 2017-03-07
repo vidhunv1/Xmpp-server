@@ -22,7 +22,8 @@ defmodule Spotlight.Router do
     resources "/contacts", PhoneContactController, only: [:create]
 
     post "/bot", BotController, :init
-    get "/bot", BotController, :show
+    get "/bot/:username", BotController, :show
+    post "/bot/menu", BotController, :update_persistent_menu
 
     post "/message", MessageController, :send_message
   end

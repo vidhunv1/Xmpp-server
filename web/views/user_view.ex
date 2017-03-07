@@ -32,6 +32,10 @@ defmodule Spotlight.UserView do
   end
 
   def render("user.json", %{user: user}) do
+    user_type = case user.username do
+      "o_"<>_ -> "official"
+      _ -> "regular"
+    end
     %{name: user.name,
       phone: user.phone,
       country_code: user.country_code,
@@ -39,6 +43,7 @@ defmodule Spotlight.UserView do
       is_registered: user.is_registered,
       profile_dp: SpotlightApi.ImageUploader.url({user.profile_dp, user}),
       username: user.username,
+      user_type: user_type,
       user_id: user.user_id}
   end
 

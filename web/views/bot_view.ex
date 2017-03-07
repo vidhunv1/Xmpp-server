@@ -13,13 +13,19 @@ defmodule Spotlight.BotView do
   end
 
   def render("show.json", %{user: user}) do
+    {:ok, menu} = 
+      if(!is_nil(user.bot_details.persistent_menu)) do
+        Poison.decode(user.bot_details.persistent_menu)
+      else
+        {:ok, nil}
+      end
     %{data: %{
         id: user.id,
-        phone: user.phone,
-        country_code: user.country_code,
         name: user.name,
+        username: user.username,
         user_id: user.user_id,
-        post_url: user.bot_details.post_url
-      }}
+        persistent_menu: menu
+      }
+    }
   end
 end
