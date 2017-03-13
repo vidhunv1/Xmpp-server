@@ -13,12 +13,13 @@ defmodule Spotlight.Repo.Migrations.CreateUser do
       add :country_code, :string
       add :phone_formatted, :string
       add :verification_uuid, :string
-      add :verification_status, :boolean, default: false, null: false
+      add :is_registered, :boolean, default: false, null: false
+      add :mobile_carrier, :string
+      add :user_type, :string
 
       timestamps default: "2016-01-01 00:00:01"
     end
 
-    create unique_index(:users, [:phone_formatted])
-    create index(:users, [:phone])
+    create unique_index(:users, [:username])
   end
 end

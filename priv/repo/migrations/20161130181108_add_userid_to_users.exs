@@ -5,6 +5,6 @@ defmodule Spotlight.Repo.Migrations.AddUseridToUsers do
     alter table(:users) do
       add :user_id, :string
     end
-    create index(:users, [:user_id])
+    create unique_index(:users, [:user_id])
   end
 end

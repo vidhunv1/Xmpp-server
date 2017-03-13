@@ -16,4 +16,11 @@ defmodule Spotlight.ChangesetView do
     # as a JSON object. So we just pass it forward.
     %{errors: translate_errors(changeset)}
   end
+
+  def render("update_error.json", %{changeset: changeset}) do
+    %{error: %{
+      "code": 409,
+      "message": "could not update resource."
+      }}
+  end
 end
