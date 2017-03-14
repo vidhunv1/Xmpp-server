@@ -13,8 +13,12 @@ defmodule Spotlight.ErrorView do
     %{errors: %{detail: "Internal server error"}}
   end
 
-  def render("error.json", %{message: message, code: code}) do
-    %{error: %{message: message, code: code}}
+  def render("error.json", %{code: code, message: message, title: title}) do
+    %{error: %{
+      code: code,
+      message: message,
+      title: title}
+    }
   end
 
   # In case no render clause matches or no

@@ -20,6 +20,7 @@ defmodule Spotlight.Router do
     patch "/users", UserController, :update
     get "/users/username/:username", UserController, :show
     get "/users/id/:user_id", UserController, :show
+    get "/users/logout", UserController, :logout
 
     resources "/contacts", PhoneContactController, only: [:create]
 

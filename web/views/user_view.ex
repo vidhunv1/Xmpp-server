@@ -60,10 +60,21 @@ defmodule Spotlight.UserView do
       user_id: user.user_id}
   end
 
-  def render("error.json", %{code: code, message: message}) do
-    %{error: %{
-      code: code,
-      message: message
-    }}
+  def render("create_error.json", %{changeset: changeset}) do
+    case List.first(changeset.errors) do
+      {key, {error_message, num}} -> 
+        render(Spotlight.ErrorView, "error.json", %{title: "Invalid "<>Atom.to_string(key), message: error_message, code: 400})
+      {_, _} ->
+        render(Spotlight.ErrorView, "error.json", %{title: "Invalid details", message: "Please check the details.", code: 400})
+    end
+  end
+
+  def render("update_error.json", %{changeset: changeset}) do
+    case List.first(changeset.errors) do
+      {key, {error_message, num}} -> 
+        render(Spotlight.ErrorView, "error.json", %{title: "Invalid "<>Atom.to_string(key), message: error_message, code: 409})
+      {_, _} ->
+        render(Spotlight.ErrorView, "error.json", %{title: "Invalid details", message: "Please check the details.", code: 409})
+    end
   end
 end
