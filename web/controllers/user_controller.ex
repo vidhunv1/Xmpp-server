@@ -151,6 +151,28 @@ defmodule Spotlight.UserController do
     end
   end
 
+  def update(conn, %{"user" => %{"user_id" => user_id}}) do
+    user = Guardian.Plug.current_resource(conn)
+    IO.inspect user
+
+    username = case user.user_type do
+      "regular" -> "u_"<>user_id
+      "official" -> "o_"<>user_id
+      _ -> ""
+    end
+    changeset = User.update_changeset(user, %{"user_id" => user_id, "username" => username})
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        render(conn, "show_update.json", user: user)
+      {:error, changeset} ->
+        Logger.debug inspect(changeset)
+        conn
+        |> put_status(:ok)
+        |> render("update_error.json", changeset: changeset)
+    end
+  end
+
   def update(conn, %{"user" => user_params}) do
     user = Guardian.Plug.current_resource(conn)
     changeset = User.update_changeset(user, user_params)

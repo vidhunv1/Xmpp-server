@@ -30,7 +30,7 @@ defmodule ModPacketInterceptor do
           {:ok, _} ->
             #Message Delivered
             info("Delivered '#{message}' to #{bot_user.bot_details.post_url} ")
-          {:error, _} ->
+          {:error, m} ->
             #Error sending message
             info("Error forwading '#{message}' to #{bot_user.bot_details.post_url} ")
         end

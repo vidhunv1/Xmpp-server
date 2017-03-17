@@ -3,7 +3,7 @@ defmodule BotHelper do
 
   def forward_message(from_user_id, message, url) do
     headers = [{"Content-type", "application/json"}]
-    body = "{\"from_id\": \"#{from_user_id}\", \"message\": \"#{message}\"}"
+    body = "{\"from_id\": \"#{from_user_id}\", \"message\": #{message}}"
     
     case HTTPoison.post(url<>"/message", body, headers) do
     	{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->

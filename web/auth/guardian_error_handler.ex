@@ -3,6 +3,6 @@ defmodule Spotlight.GuardianErrorHandler do
   def unauthenticated(conn, _params) do
     conn
     |> put_status(401)
-    |> render("error.json", %{message: "Invalid Access token", code: 401})  
+    |> render(Spotlight.ErrorView, "error.json", %{title: "Error", message: "Invalid Access token", code: 401})
   end
 end

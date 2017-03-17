@@ -38,7 +38,7 @@ defmodule Spotlight.User do
   end
 
   @required_fields ~w()
-  @optional_fields ~w(name notification_token profile_dp user_id)
+  @optional_fields ~w(name notification_token profile_dp user_id username)
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
@@ -46,7 +46,7 @@ defmodule Spotlight.User do
     |> cast_attachments(params, [:profile_dp])
   end
 
-  @required_fields ~w(is_registered username)
+  @required_fields ~w(is_registered username user_type)
   @optional_fields ~w()
   def register_changeset(struct, params \\ %{}) do
     struct

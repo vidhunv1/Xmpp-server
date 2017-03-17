@@ -8,10 +8,9 @@ defmodule Spotlight.MessageController do
 
   def send_message(conn, %{"recipient" => to, "message" => message}) do
   	user = Guardian.Plug.current_resource(conn)
-
     if(!is_nil(user)) do
       from_username = user.username
-      to_username = Repo.get_by(User, [user_id: to]).username
+      to_username = "u_"<>to
       MessageRouter.send_message(from_username, to_username, Poison.encode!(message))
       send_resp(conn, :ok, "")
     else
