@@ -173,6 +173,23 @@ defmodule Spotlight.UserController do
     end
   end
 
+  def update(conn, %{"profile_dp" => image_data}) do
+    user = Guardian.Plug.current_resource(conn)
+    changeset = Spotlight.User.update_changeset(user, %{"profile_dp" => image_data})
+
+    IO.inspect changeset
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        render(conn, "show_update.json", user: user)
+      {:error, changeset} ->
+        Logger.debug inspect(changeset)
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+
   def update(conn, %{"user" => user_params}) do
     user = Guardian.Plug.current_resource(conn)
     changeset = User.update_changeset(user, user_params)
@@ -201,23 +218,6 @@ defmodule Spotlight.UserController do
         conn
           |> put_status(:ok)
           |> render(Spotlight.ErrorView, "error.json", %{title: "Error", message: "Error logging out.", code: 400})
-    end
-  end
-
-  def update(conn, %{"profile_dp" => image_data}) do
-    user = Guardian.Plug.current_resource(conn)
-    changeset = Spotlight.User.update_changeset(user, %{"profile_dp" => image_data})
-
-    IO.inspect changeset
-
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        render(conn, "show_update.json", user: user)
-      {:error, changeset} ->
-        Logger.debug inspect(changeset)
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

@@ -45,7 +45,8 @@ config :mnesia,
 
 config :arc,
   bucket: "spotlight.test",
-  virtual_host: true
+  virtual_host: true,
+  version_timeout: 30_000
 
 config :ex_aws,
   access_key_id: "AKIAJSPRHDKMGBXSDMZQ",

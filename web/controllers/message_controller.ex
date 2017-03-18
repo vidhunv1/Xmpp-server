@@ -4,7 +4,7 @@ defmodule Spotlight.MessageController do
 
   alias Spotlight.User
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:update]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:send_message]
 
   def send_message(conn, %{"recipient" => to, "message" => message}) do
   	user = Guardian.Plug.current_resource(conn)
