@@ -1,4 +1,4 @@
-defmodule Spotlight.Router do
+  defmodule Spotlight.Router do
   use Spotlight.Web, :router
 
   pipeline :api do
@@ -17,7 +17,6 @@ defmodule Spotlight.Router do
     post "/users/login", UserController, :login
     post "/users/verify", UserController, :verify
     put "/users", UserController, :update
-    patch "/users", UserController, :update
     get "/users/username/:username", UserController, :show
     get "/users/id/:user_id", UserController, :show
     get "/users/logout", UserController, :logout
