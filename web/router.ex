@@ -28,6 +28,7 @@
     post "/bot/menu", BotController, :update_persistent_menu
 
     post "/message", MessageController, :send_message
+
+    get "/app/init", AppController, :init
   end
 end
-  

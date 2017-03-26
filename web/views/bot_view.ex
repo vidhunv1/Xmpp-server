@@ -13,7 +13,7 @@ defmodule Spotlight.BotView do
   end
 
   def render("show.json", %{user: user}) do
-    {:ok, menu} = 
+    {:ok, menu} =
       if(!is_nil(user.bot_details.persistent_menu)) do
         Poison.decode(user.bot_details.persistent_menu)
       else
@@ -27,5 +27,10 @@ defmodule Spotlight.BotView do
         persistent_menu: menu
       }
     }
+  end
+
+  def render("status.json", %{message: message, status: status}) do
+    %{status: status,
+      message: message}
   end
 end

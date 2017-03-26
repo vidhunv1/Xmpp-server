@@ -1,10 +1,11 @@
 defmodule Spotlight.Bot do
 	use Spotlight.Web, :model
   alias Spotlight.User
-  
+
   schema "bot_details" do
   	field :post_url, :string, size: 100
     field :persistent_menu, :string, size: 1000
+		field :should_app_init_hook, :boolean, default: false
 
   	belongs_to :user, Spotlight.User
     timestamps
