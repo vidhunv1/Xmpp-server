@@ -12,7 +12,9 @@ config :spotlight_api,
   #vidhun
   #authy_api_token: "Sdb4XUOTj72PrVGqh79L7rvz4R8oSQ1T"
   authy_api_token: "jRUFkX6S1HVjFmx4LJaBCCfVYRx4LmoD",
-  fcm_key: "AIzaSyASuRqvCZT1jgt4oQtHkNXyEkw_FbAWN90"
+  fcm_key: "AIzaSyASuRqvCZT1jgt4oQtHkNXyEkw_FbAWN90",
+  PAYMENT_KEY: "rjQUPktU",
+  PAYMENT_SALT: "e5iIg1jwi8"
 
 # Configures the endpoint
 config :spotlight_api, Spotlight.Endpoint,

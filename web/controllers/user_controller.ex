@@ -6,15 +6,15 @@ defmodule Spotlight.UserController do
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:update, :logout]
 
-  def create(conn, 
-    %{"user" => 
-      %{"name" => name, 
-        "email" => email, 
-        "password" => password, 
-        "country_code" => country_code, 
+  def create(conn,
+    %{"user" =>
+      %{"name" => name,
+        "email" => email,
+        "password" => password,
+        "country_code" => country_code,
         "phone" => mobile_number,
         "user_type" => user_type} }) do
-        
+
     user = Repo.get_by(User, [email: email, is_registered: true])
     user_params = %{"phone" => mobile_number,
                     "country_code" => country_code,
@@ -35,7 +35,7 @@ defmodule Spotlight.UserController do
       case user_type do
         "regular" -> :ok
         "official" -> :ok
-        _ ->             
+        _ ->
           conn
             |> put_status(200)
             |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid user type.", code: 401})
@@ -46,7 +46,7 @@ defmodule Spotlight.UserController do
       case Repo.insert(changeset) do
         {:ok, user_insert} ->
           created_user = Repo.get_by(User, [email: email])
-          username = 
+          username =
             case user_type do
               "regular" -> "u_"<>Integer.to_string(created_user.id)
               "official" -> "o_"<>Integer.to_string(created_user.id)
@@ -88,12 +88,12 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def login(conn, 
-    %{"user" => 
-      %{"email" => email, 
+  def login(conn,
+    %{"user" =>
+      %{"email" => email,
         "password" => password
         }}) do
-    
+
     host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
     user = Repo.get_by(User, [email: email, is_registered: true])
 
@@ -120,9 +120,9 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def login(conn, 
-    %{"user" => 
-      %{"user_id" => user_id, 
+  def login(conn,
+    %{"user" =>
+      %{"user_id" => user_id,
         "password" => password
         }}) do
 
@@ -131,7 +131,7 @@ defmodule Spotlight.UserController do
 
     if(is_nil(user)) do
       conn
-        |> put_status(:ok)  
+        |> put_status(:ok)
         |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
     else
       if :ejabberd_auth.check_password(user.username, "", host, password) do
@@ -145,7 +145,7 @@ defmodule Spotlight.UserController do
           |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
         else
           conn
-            |> put_status(:ok)        
+            |> put_status(:ok)
             |> render(Spotlight.ErrorView, "error.json", %{title: "Invalid password", message: "Please enter a valid password.", code: 401})
       end
     end

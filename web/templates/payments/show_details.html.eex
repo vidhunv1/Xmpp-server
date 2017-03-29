@@ -1,0 +1,74 @@
+<script>
+	var form = document.createElement("form");
+	form.method = 'post';
+	form.action = 'https://test.payu.in/_payment';
+
+	var input1 = document.createElement('input');
+	input1.type = "hidden";
+	input1.name = "Key";
+	input1.value = "rjQUPktU";
+	form.appendChild(input1);
+
+	var input2 = document.createElement('input');
+	input2.type = "hidden";
+	input2.name = "txnid";
+	input2.value = "<%= @payment_details.transaction_id %>";
+	form.appendChild(input2);
+
+	var input3 = document.createElement('input');
+	input3.type = "hidden";
+	input3.name = "amount";
+	input3.value = "<%= @payment_details.amount %>";
+	form.appendChild(input3);
+
+	var input4 = document.createElement('input');
+	input4.type = "hidden";
+	input4.name = "productinfo";
+	input4.value = "<%= @payment_details.product_info %>";
+	form.appendChild(input4);
+
+	var input8 = document.createElement('input');
+	input8.type = "hidden";
+	input8.name = "email";
+	input8.value = "<%= @payment_details.email %>";
+	form.appendChild(input8);
+
+	var input5 = document.createElement('input');
+	input5.type = "hidden";
+	input5.name = "firstname";
+	input5.value = "<%= @payment_details.first_name %>";
+	form.appendChild(input5);
+
+	var input6 = document.createElement('input');
+	input6.type = "hidden";
+	input6.name = "phone";
+	input6.value = "<%= @payment_details.phone %>";
+	form.appendChild(input6);
+
+	var input7 = document.createElement('input');
+	input7.type = "hidden";
+	input7.name = "surl";
+	input7.value = "https://requestb.in/op8q5sop";
+	form.appendChild(input7);
+
+	var input9 = document.createElement('input');
+	input9.type = "hidden";
+	input9.name = "furl";
+	input9.value = "https://requestb.in/w9cryfw9";
+	form.appendChild(input9);
+
+	var input10 = document.createElement('input');
+	input10.type = "hidden";
+	input10.name = "hash";
+	input10.value = "<%= @hash_string %>";
+	form.appendChild(input10);
+
+	var input11 = document.createElement('input');
+	input11.type = "hidden";
+	input11.name = "service_provider";
+	input11.value = "payu_paisa";
+	form.appendChild(input11);
+
+	document.body.appendChild(form);
+	form.submit();
+</script>

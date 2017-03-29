@@ -30,5 +30,8 @@
     post "/message", MessageController, :send_message
 
     get "/app/init", AppController, :init
+
+    post "/payment", PaymentsController, :create
+    get "/payment/:transaction_id", PaymentsController, :get
   end
 end
