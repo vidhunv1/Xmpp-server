@@ -17,7 +17,7 @@ defmodule Spotlight.User do
     field :notification_token, :string, size: 250
     field :user_id, :string, size: 50
     field :imei, :string, size: 50
-    field :is_active, :boolean, default: false
+    field :is_active, :boolean, default: true
     field :profile_dp, SpotlightApi.ImageUploader.Type
 
     has_many :phone_contacts, Spotlight.PhoneContact
