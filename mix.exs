@@ -4,7 +4,7 @@ defmodule Spotlight.Mixfile do
   def project do
     [app: :spotlight_api,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -34,7 +34,8 @@ defmodule Spotlight.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:phoenix, "~> 1.2.1"},
-     {:p1_utils, "~> 1.0"},
+     {:p1_utils, "~> 1.0.7"},
+     {:relx, "3.22.0"},
      {:exrm, "~> 1.0.8"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.0"},
@@ -51,8 +52,9 @@ defmodule Spotlight.Mixfile do
      {:arc_ecto, "~> 0.4.4"},
      {:ex_aws, "~> 0.5"},
      {:poison, "~> 2.0"},
-     {:httpoison, "~> 0.9.0"},
-     {:hackney, "~> 1.6"}]
+     {:httpoison, "~> 0.11.1"},
+     {:phoenix_html, "~> 2.6"},
+     {:hackney, "~> 1.7.1"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

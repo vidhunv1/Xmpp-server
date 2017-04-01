@@ -13,14 +13,20 @@ defmodule Spotlight.UserController do
         "password" => password,
         "country_code" => country_code,
         "phone" => mobile_number,
-        "user_type" => user_type} }) do
+        "user_type" => user_type,
+        "notification_token" => notification_token,
+        "mobile_carrier" => mobile_carrier,
+        "imei" => imei} }) do
 
     user = Repo.get_by(User, [email: email, is_registered: true])
     user_params = %{"phone" => mobile_number,
                     "country_code" => country_code,
                     "email" => email,
                     "name" => name,
-                    "user_type" => user_type}
+                    "user_type" => user_type,
+                    "imei" => imei,
+                    "notification_token" => notification_token,
+                    "mobile_carrier" => mobile_carrier}
 
     if(!is_nil(user)) do
       conn
@@ -91,7 +97,8 @@ defmodule Spotlight.UserController do
   def login(conn,
     %{"user" =>
       %{"email" => email,
-        "password" => password
+        "password" => password,
+        "notification_token" => notification_token
         }}) do
 
     host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
@@ -106,7 +113,8 @@ defmodule Spotlight.UserController do
         new_conn = Guardian.Plug.api_sign_in(conn, user)
         jwt = Guardian.Plug.current_token(new_conn)
         {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
-
+        changeset = User.update_changeset(user, %{"notification_token" => notification_token})
+        Repo.update(changeset)
         new_conn
          |> put_status(:ok)
           |> put_resp_header("authorization", "Bearer "<>jwt)
@@ -123,7 +131,8 @@ defmodule Spotlight.UserController do
   def login(conn,
     %{"user" =>
       %{"user_id" => user_id,
-        "password" => password
+        "password" => password,
+        "notification_token" => notification_token
         }}) do
 
     host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
@@ -138,15 +147,17 @@ defmodule Spotlight.UserController do
         new_conn = Guardian.Plug.api_sign_in(conn, user)
         jwt = Guardian.Plug.current_token(new_conn)
         {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
+        changeset = User.update_changeset(user, %{"notification_token" => notification_token})
+        Repo.update(changeset)
         new_conn
           |> put_status(:ok)
           |> put_resp_header("authorization", "Bearer "<>jwt)
           |> put_resp_header("x-expires", to_string(exp))
           |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
-        else
-          conn
-            |> put_status(:ok)
-            |> render(Spotlight.ErrorView, "error.json", %{title: "Invalid password", message: "Please enter a valid password.", code: 401})
+      else
+        conn
+          |> put_status(:ok)
+          |> render(Spotlight.ErrorView, "error.json", %{title: "Invalid password", message: "Please enter a valid password.", code: 401})
       end
     end
   end
@@ -207,7 +218,7 @@ defmodule Spotlight.UserController do
 
   def logout(conn, %{}) do
     user = Guardian.Plug.current_resource(conn)
-    changeset = Spotlight.User.update_changeset(user, %{"notification_token" => ""})
+    changeset = Spotlight.User.update_changeset(user, %{"notification_token" => "", "is_active" => false})
 
     case Repo.update(changeset) do
       {:ok, user} ->
