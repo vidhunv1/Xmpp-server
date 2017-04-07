@@ -234,14 +234,14 @@ defmodule Spotlight.UserController do
 
   def show(conn, %{"username" => username}) do
     case Repo.get_by(User, [username: username, is_registered: true]) do
-      nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
+      nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
       user -> render(conn, "show.json", user: user)
     end
   end
 
   def show(conn, %{"user_id" => user_id}) do
     case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
-      nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
+      nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
       user -> render(conn, "show.json", user: user)
     end
   end
