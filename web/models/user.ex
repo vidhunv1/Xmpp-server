@@ -45,6 +45,7 @@ defmodule Spotlight.User do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> unique_constraint(:user_id)
+    |> unique_constraint(:username)
     |> cast_attachments(params, [:profile_dp])
   end
 
