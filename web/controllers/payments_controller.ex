@@ -7,6 +7,8 @@ defmodule Spotlight.PaymentsController do
   alias Spotlight.PaymentsDetails
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create]
+  plug Plug.Parsers, parsers: [:urlencoded]
+  plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
   def create(conn, %{"amount" => amount,
                                     "product_info" => product_info,
@@ -51,17 +53,18 @@ defmodule Spotlight.PaymentsController do
     end
   end
 
-  def transaction(conn, %{"status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "amount" => amount, "txnid" => txnid, "key" => key}) do
-    IO.inspect status
-    IO.inspect email
-    IO.inspect firstname
-    IO.inspect productinfo
-    IO.inspect amount
-    IO.inspect txnid
-    IO.inspect key
+  def transaction(conn, %{"hash" => hash, "status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "txnid" => txnid, "amount" => amount}) do
     # Calculate and verify hash
-    conn
-      |> put_status(200)
-      |> render("show_success.html", %{txnid: txnid, amount: amount})
+    hash_string = Application.get_env(:spotlight_api, :PAYMENT_SALT)<>"|"<>status<>"|||||||||||"<>email<>"|"<>firstname<>"|"<>productinfo<>"|"<>amount<>"|"<>txnid<>"|"<>Application.get_env(:spotlight_api, :PAYMENT_KEY)
+    case hash do
+      :crypto.hash(:sha512, hash_string) |> Base.encode16 |> String.downcase ->
+        Logger.info "Correct hash value"
+        conn
+          |> put_status(200)
+          |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+      _ ->
+        conn
+          |> put_status(401)
+    end
   end
 end

@@ -33,5 +33,6 @@
 
     post "/payment", PaymentsController, :create
     get "/payment/:transaction_id", PaymentsController, :get
+    post "/payment/transaction", PaymentsController, :transaction
   end
 end
