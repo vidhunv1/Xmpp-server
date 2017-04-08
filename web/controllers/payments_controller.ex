@@ -50,4 +50,18 @@ defmodule Spotlight.PaymentsController do
           |> render("show_details.html", %{payment_details: pd, hash_string: :crypto.hash(:sha512, hash_string) |> Base.encode16 |> String.downcase})
     end
   end
+
+  def transaction(conn, %{"status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "amount" => amount, "txnid" => txnid, "key" => key}) do
+    IO.inspect status
+    IO.inspect email
+    IO.inspect firstname
+    IO.inspect productinfo
+    IO.inspect amount
+    IO.inspect txnid
+    IO.inspect key
+    # Calculate and verify hash
+    conn
+      |> put_status(200)
+      |> render("show_success.html", %{txnid: txnid, amount: amount})
+  end
 end

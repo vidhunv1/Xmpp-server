@@ -1,0 +1,1 @@
+<p> Transaction success. Transaction ID: <%= @txnid %>, Amount <%= @amount %> </p>
