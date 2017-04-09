@@ -165,6 +165,7 @@ defmodule Spotlight.UserController do
   def update(conn, %{"user" => %{"user_id" => user_id}}) do
     user = Guardian.Plug.current_resource(conn)
     IO.inspect user
+    user_id = String.downcase(user_id)
 
     username = case user.user_type do
       "regular" -> "u_"<>user_id
