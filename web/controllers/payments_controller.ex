@@ -11,8 +11,9 @@ defmodule Spotlight.PaymentsController do
   plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
   def create(conn, %{"amount" => amount,
-                                    "product_info" => product_info,
-                                    "user_id" => user_id}) do
+                     "product_info" => product_info,
+                     "user_id" => user_id,
+                     "transaction_secret" => transaction_secret}) do
     current_user = Guardian.Plug.current_resource(conn)
 
     if(!is_nil(current_user) && current_user.user_type == "official") do
@@ -20,7 +21,7 @@ defmodule Spotlight.PaymentsController do
         nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
         user ->
           txnid = current_user.user_id<>"."<>UUID.uuid1()
-          params = %{"transaction_id" => txnid, "amount" => amount, "product_info" => product_info, "email" => user.email, "first_name" => user.name, "phone" => user.phone, "user_id" => user_id}
+          params = %{"transaction_secret" => transaction_secret, "created_by_user_id" => current_user.user_id, "transaction_id" => txnid, "amount" => amount, "product_info" => product_info, "email" => user.email, "first_name" => user.name, "phone" => user.phone, "user_id" => user_id}
           changeset = Spotlight.PaymentsDetails.create_transaction(%PaymentsDetails{}, params)
 
           case Repo.insert(changeset) do
@@ -53,19 +54,39 @@ defmodule Spotlight.PaymentsController do
     end
   end
 
-  def transaction(conn, %{"hash" => hash, "status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "txnid" => txnid, "amount" => amount}) do
+  def transaction(conn, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "hash" => hash, "status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "txnid" => txnid, "amount" => amount}) do
     # Calculate and verify hash
     hash_string = :crypto.hash(:sha512, Application.get_env(:spotlight_api, :PAYMENT_SALT)<>"|"<>status<>"|||||||||||"<>email<>"|"<>firstname<>"|"<>productinfo<>"|"<>amount<>"|"<>txnid<>"|"<>Application.get_env(:spotlight_api, :PAYMENT_KEY)) |> Base.encode16 |> String.downcase
 
     if(String.equivalent?(hash_string, hash)) do
       Logger.info "Correct hash value"
-      conn
-        |> put_status(200)
-        |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+
+      payment = Repo.get_by(PaymentsDetails, [transaction_id: txnid])
+
+      case payment do
+        nil -> conn |> put_status(422) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find Transaction.", code: 422})
+        pd ->
+          bot_user = Repo.get_by(User, [user_id: pd.created_by_user_id]) |> Repo.preload([:bot_details])
+          case BotHelper.send_on_transaction(pd.user_id,txnid,pd.transaction_secret,pd.amount,status,productinfo,bot_user.bot_details.post_url) do
+            {:ok, _} ->
+              #Message Delivered
+              Logger.info("Delivered Transaction to #{bot_user.bot_details.post_url}.")
+              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "is_delivered" => true})
+              Repo.update(changeset)
+              conn
+                |> put_status(200)
+                |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+            {:error, m} ->
+              #Error sending message
+              Logger.debug("Error Posting transaction to #{bot_user.bot_details.post_url}. #{m}")
+              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "is_delivered" => false})
+              Repo.update(changeset)
+              conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Error ", message: "Error forwarding message.", code: 422})
+          end
+      end
     else
       Logger.info "Invalid hash value"
-      conn
-        |> put_status(401)
+      send_resp(conn, 401, "Invalid hash value")
     end
   end
 end

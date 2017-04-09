@@ -30,4 +30,20 @@ defmodule BotHelper do
         {:error, reason}
     end
   end
+
+  def send_on_transaction(from_user_id, transaction_id, transaction_secret, amount, status, productinfo, url) do
+    headers = [{"Content-type", "application/json"}]
+    body = "{\"from_id\": \"#{from_user_id}\", \"transaction_id\": \"#{transaction_id}\", \"amount\": \"#{amount}\", \"status\": \"#{status}\", , \"productinfo\": \"#{productinfo}\"}"
+
+    Logger.info(body)
+
+    case HTTPoison.post(url<>"/transaction", body, headers) do
+    	{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+          {:ok, body}
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+          {:error, "Invalid status code returned"}
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, reason}
+    end
+  end
 end

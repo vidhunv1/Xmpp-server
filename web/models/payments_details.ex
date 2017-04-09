@@ -13,14 +13,24 @@ defmodule Spotlight.PaymentsDetails do
     field :payment_id, :string, size: 100
     field :error_message, :string, size: 100
 		field :user_id, :string, size: 100
+		field :created_by_user_id, :string, size: 100
+		field :transaction_secret, :string, size: 200
+		field :is_delivered, :boolean, default: false
 
     timestamps
   end
 
-  @required_fields ~w(transaction_id amount product_info email first_name phone user_id)
+  @required_fields ~w(transaction_id amount product_info email first_name phone user_id created_by_user_id transaction_secret)
   @optional_fields ~w()
   def create_transaction(model, params \\  %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
+
+	@required_fields ~w(status mihpayid payment_id error_message is_delivered)
+	@optional_fields ~w()
+	def update_transaction(model, params \\  %{}) do
+		model
+		|> cast(params, @required_fields, @optional_fields)
+	end
 end

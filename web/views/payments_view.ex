@@ -5,4 +5,12 @@ defmodule Spotlight.PaymentsView do
     %{transaction_id: transaction_id,
       status: status}
   end
+
+  def render("transaction.json", %{transaction_id: transaction_id, status: status, user_id: user_id, productinfo: productinfo, amount: amount}) do
+     %{transaction_id: transaction_id,
+        status: status,
+        user_id: user_id,
+        productinfo: productinfo,
+        amount: amount}
+  end
 end
