@@ -37,7 +37,7 @@ defmodule BotHelper do
 
     Logger.info(body)
 
-    case HTTPoison.post(url<>"/transaction", body, headers) do
+    case HTTPoison.post(url<>"/transaction", body, headers, [recv_timeout: 100000, timeout: 100000]) do
     	{:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
           {:ok, body}
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
