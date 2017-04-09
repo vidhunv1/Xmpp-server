@@ -54,7 +54,7 @@ defmodule Spotlight.PaymentsController do
     end
   end
 
-  def transaction(conn, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "hash" => hash, "status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "txnid" => txnid, "amount" => amount}) do
+  def transaction(conn, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_Message" => error_message, "hash" => hash, "status" => status, "email" => email, "firstname" => firstname, "productinfo" => productinfo, "txnid" => txnid, "amount" => amount}) do
     # Calculate and verify hash
     hash_string = :crypto.hash(:sha512, Application.get_env(:spotlight_api, :PAYMENT_SALT)<>"|"<>status<>"|||||||||||"<>email<>"|"<>firstname<>"|"<>productinfo<>"|"<>amount<>"|"<>txnid<>"|"<>Application.get_env(:spotlight_api, :PAYMENT_KEY)) |> Base.encode16 |> String.downcase
 
