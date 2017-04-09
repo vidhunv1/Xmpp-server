@@ -71,7 +71,7 @@ defmodule Spotlight.PaymentsController do
             {:ok, _} ->
               #Message Delivered
               Logger.info("Delivered Transaction to #{bot_user.bot_details.post_url}.")
-              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "is_delivered" => true})
+              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payment_id" => payment_id, "error_message" => error_message, "is_delivered" => true})
               Repo.update(changeset)
               conn
                 |> put_status(200)
@@ -79,7 +79,7 @@ defmodule Spotlight.PaymentsController do
             {:error, m} ->
               #Error sending message
               Logger.debug("Error Posting transaction to #{bot_user.bot_details.post_url}. #{m}")
-              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payuMoneyId" => payment_id, "error_message" => error_message, "is_delivered" => false})
+              changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payment_id" => payment_id, "error_message" => error_message, "is_delivered" => false})
               Repo.update(changeset)
               conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Error ", message: "Error forwarding message.", code: 422})
           end
