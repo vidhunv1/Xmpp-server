@@ -30,7 +30,7 @@
     post "/message", MessageController, :send_message
 
     get "/app/init", AppController, :init
-    get "/app/version", AppController, :app_version
+    get "/app/version/:platform", AppController, :app_version
 
     post "/payment", PaymentsController, :create
     get "/payment/:transaction_id", PaymentsController, :get
