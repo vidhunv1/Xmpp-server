@@ -26,4 +26,17 @@ defmodule Spotlight.AppController do
       |> put_status(:ok)
       |> render("status.json", %{message: "App initialized.", status: "success"})
   end
+
+  def app_version(conn, %{"platform" => platform}) do
+    case platform do
+      "android" ->
+         conn
+            |> put_status(:ok)
+            |> render("app_version.json", %{version_code: "10", version_name: "1.2.3", is_mandatory: true})
+      _ ->
+        conn
+          |> put_status(200)
+          |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid platform", code: 401})
+      end
+  end
 end
