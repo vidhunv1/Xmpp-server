@@ -241,9 +241,18 @@ defmodule Spotlight.UserController do
   end
 
   def show(conn, %{"user_id" => user_id}) do
-    case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
-      nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
-      user -> render(conn, "show.json", user: user)
+    user = Guardian.Plug.current_resource(conn)
+
+    if(user.user_type == "official") do
+      case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
+        nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
+        user -> render(conn, "show_full.json", user: user)
+      end
+    else
+      case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
+        nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
+        user -> render(conn, "show.json", user: user)
+      end
     end
   end
 end
