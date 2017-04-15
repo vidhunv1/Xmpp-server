@@ -50,7 +50,7 @@ defmodule Spotlight.PaymentsController do
         hash_string = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>"|"<>pd.transaction_id<>"|"<>inspect(pd.amount)<>"|"<>pd.product_info<>"|"<>pd.first_name<>"|"<>pd.email<>"|||||||||||"<>Application.get_env(:spotlight_api, :PAYMENT_SALT)
         conn
           |> put_status(200)
-          |> render("show_details.html", %{payment_details: pd, hash_string: :crypto.hash(:sha512, hash_string) |> Base.encode16 |> String.downcase})
+          |> render("show_details.html", %{payment_details: pd, hash_string: :crypto.hash(:sha512, hash_string) |> Base.encode16 |> String.downcase, payment_key: Application.get_env(:spotlight_api, :PAYMENT_KEY)})
     end
   end
 

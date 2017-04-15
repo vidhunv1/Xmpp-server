@@ -1,12 +1,12 @@
 <script>
 	var form = document.createElement("form");
 	form.method = 'post';
-	form.action = 'https://test.payu.in/_payment';
+	form.action = 'https://secure.payu.in/_payment';
 
 	var input1 = document.createElement('input');
 	input1.type = "hidden";
 	input1.name = "Key";
-	input1.value = "rjQUPktU";
+	input1.value = "<%= @payment_key %>";
 	form.appendChild(input1);
 
 	var input2 = document.createElement('input');
@@ -62,12 +62,6 @@
 	input10.name = "hash";
 	input10.value = "<%= @hash_string %>";
 	form.appendChild(input10);
-
-	var input11 = document.createElement('input');
-	input11.type = "hidden";
-	input11.name = "service_provider";
-	input11.value = "payu_paisa";
-	form.appendChild(input11);
 
 	document.body.appendChild(form);
 	form.submit();
