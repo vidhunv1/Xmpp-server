@@ -79,11 +79,11 @@ defmodule Spotlight.PaymentsController do
                 "success" ->
                   conn
                     |> put_status(200)
-                    |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+                    |> render("show_success.html", %{txnid: txnid, amount: pd.amount})
                 "failure" ->
                   conn
                     |> put_status(200)
-                    |> render("show_failure.html", %{txnid: "txnid", amount: "amount"})
+                    |> render("show_failure.html", %{txnid: txnid, amount: pd.amount})
               end
             {:error, m} ->
               #Error sending message
