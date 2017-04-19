@@ -1,7 +1,7 @@
 <script>
 	var form = document.createElement("form");
 	form.method = 'post';
-	form.action = 'https://secure.payu.in/_payment';
+	form.action = 'https://test.payu.in/_payment';
 
 	var input1 = document.createElement('input');
 	input1.type = "hidden";
@@ -54,7 +54,7 @@
 	var input9 = document.createElement('input');
 	input9.type = "hidden";
 	input9.name = "furl";
-	input9.value = "http://requestb.in/187l89j1";
+	input9.value = "http://35.154.180.86:4000/v1/payment/transaction/";
 	form.appendChild(input9);
 
 	var input10 = document.createElement('input');

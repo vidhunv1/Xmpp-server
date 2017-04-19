@@ -1,0 +1,1 @@
+<p> Transaction Failed. Transaction ID: <%= @txnid %>, Amount <%= @amount %> </p>

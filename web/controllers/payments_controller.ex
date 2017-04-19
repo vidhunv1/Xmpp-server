@@ -20,7 +20,7 @@ defmodule Spotlight.PaymentsController do
       case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
         nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
         user ->
-          txnid = current_user.user_id<>"."<>UUID.uuid1()
+          txnid = String.slice(UUID.uuid4(:hex), 0..15)
           params = %{"transaction_secret" => transaction_secret, "created_by_user_id" => current_user.user_id, "transaction_id" => txnid, "amount" => amount, "product_info" => product_info, "email" => user.email, "first_name" => user.name, "phone" => user.phone, "user_id" => user_id}
           changeset = Spotlight.PaymentsDetails.create_transaction(%PaymentsDetails{}, params)
 
@@ -75,9 +75,16 @@ defmodule Spotlight.PaymentsController do
               Logger.info("Delivered Transaction to #{bot_user.bot_details.post_url}.")
               changeset = PaymentsDetails.update_transaction(payment, %{"mihpayid" => mihpayid, "payment_id" => payment_id, "error_message" => error_message, "status" => status, "is_delivered" => true})
               Repo.update(changeset)
-              conn
-                |> put_status(200)
-                |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+              case status do
+                "success" ->
+                  conn
+                    |> put_status(200)
+                    |> render("show_success.html", %{txnid: "txnid", amount: "amount"})
+                "failure" ->
+                  conn
+                    |> put_status(200)
+                    |> render("show_failure.html", %{txnid: "txnid", amount: "amount"})
+              end
             {:error, m} ->
               #Error sending message
               Logger.debug("Error Posting transaction to #{bot_user.bot_details.post_url}. #{m}")
