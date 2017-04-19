@@ -1,13 +1,13 @@
 <html>
 <head>
+  <meta http-equiv="refresh" content="0; url=http://closewebview" />
 <script>
 function loaded()
 {
-  <p> Transaction Failed. Transaction ID: <%= @txnid %>, Amount <%= @amount %> </p>
     window.close();
 }
 </script>
 </head>
 <body onLoad="loaded()">
-Hello!
+<p> Transaction Failed. Transaction ID: <%= @txnid %>, Amount <%= @amount %> </p>
 </body>
