@@ -35,5 +35,9 @@
     post "/payment", PaymentsController, :create
     get "/payment/:transaction_id", PaymentsController, :get
     post "/payment/transaction", PaymentsController, :transaction
+
+    get "/contacts/add/:user_id", ContactsController, :add
+    get "/contacts/block/:user_id", ContactsController, :block
+    get "/contacts/unblock/:user_id", ContactsController, :unblock
   end
 end
