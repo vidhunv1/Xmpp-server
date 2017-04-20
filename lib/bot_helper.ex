@@ -49,7 +49,7 @@ defmodule BotHelper do
 
   def send_on_transaction(from_user_id, transaction_id, transaction_secret, amount, status, productinfo, url) do
     headers = [{"Content-type", "application/json"}]
-    body = "{\"from_id\": \"#{from_user_id}\", \"transaction_id\": \"#{transaction_id}\", \"transaction_secret\": \"#{transaction_secret}\", \"amount\": \"#{amount}\", \"status\": \"#{status}\", \"productinfo\": \"#{productinfo}\"}"
+    body = "{\"from_id\": \"#{from_user_id}\", \"transaction_id\": \"#{transaction_id}\", \"transaction_secret\": \"#{transaction_secret}\", \"amount\": \"#{amount}\", \"status\": \"#{status}\", \"product_info\": \"#{productinfo}\"}"
     Logger.info(body)
 
     case HTTPoison.post(url<>"/transaction", body, headers, [recv_timeout: 100000, timeout: 100000]) do
