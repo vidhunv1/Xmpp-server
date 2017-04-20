@@ -18,7 +18,7 @@ defmodule Spotlight.ContactsController do
         if contact.user_type == "official" do
           bot_details = (contact |> Repo.preload(:bot_details)).bot_details
           if(!is_nil(bot_details)) do
-            case BotHelper.send_add_hook(contact.user_id, contact.name, contact.phone, bot_details.post_url) do
+            case BotHelper.send_add_hook(current_user.user_id, current_user.name, current_user.phone, bot_details.post_url) do
               {:ok, _} ->
                 #Message Delivered
                 Logger.info("Delivered ADD_HOOK to #{bot_details.post_url}.")
