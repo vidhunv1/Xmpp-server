@@ -14,7 +14,6 @@ defmodule Spotlight.ContactsController do
     case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
       nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
       contact ->
-        Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
         if(!is_nil(Repo.get_by(Contact, [user_id: current_user.id, contact_id: user_id]))) do
             conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
         else
