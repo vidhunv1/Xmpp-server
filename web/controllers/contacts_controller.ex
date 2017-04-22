@@ -17,6 +17,8 @@ defmodule Spotlight.ContactsController do
         Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
         if(!is_nil(Repo.get_by(Contact, [user_id: current_user.id, contact_id: user_id]))) do
             conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
+        else
+          Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
         end
         if contact.user_type == "official" do
           bot_details = (contact |> Repo.preload(:bot_details)).bot_details
