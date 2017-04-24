@@ -62,6 +62,7 @@ defmodule Spotlight.ContactsController do
 
   def get(conn, %{}) do
     current_user = Guardian.Plug.current_resource(conn)
-    conn |> put_status(200) |> render("show.json", contacts: Contact |> Repo.all(user_id: current_user.id) |> Repo.preload(:contact))
+    q = from(p in Contact, where: p.user_id == ^current_user.id)
+    conn |> put_status(200) |> render("show.json", contacts: Repo.all(q) |> Repo.preload(:contact))
   end
 end
