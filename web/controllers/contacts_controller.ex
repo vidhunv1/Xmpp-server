@@ -6,7 +6,7 @@ defmodule Spotlight.ContactsController do
   alias Spotlight.Repo
   alias Spotlight.Contact
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:add, :block, :unblock]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:add, :block, :unblock, :get]
 
   def add(conn, %{"user_id" => user_id}) do
     current_user = Guardian.Plug.current_resource(conn)
@@ -14,8 +14,8 @@ defmodule Spotlight.ContactsController do
     case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
       nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
       contact ->
-        if(!is_nil(Repo.get_by(Contact, [user_id: current_user.id, contact_id: user_id]))) do
-            conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
+        if(!is_nil(Repo.all(Contact, [user_id: current_user.id, contact_id: user_id]))) do
+          conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
         else
           Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
         end
@@ -58,5 +58,10 @@ defmodule Spotlight.ContactsController do
         Repo.update(changeset)
         conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
     end
+  end
+
+  def get(conn, %{}) do
+    current_user = Guardian.Plug.current_resource(conn)
+    conn |> put_status(200) |> render("show.json", contacts: Contact |> Repo.all(user_id: current_user.id) |> Repo.preload(:contact))
   end
 end
