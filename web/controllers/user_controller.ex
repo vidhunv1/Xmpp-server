@@ -15,11 +15,9 @@ defmodule Spotlight.UserController do
         "phone" => mobile_number,
         "user_type" => user_type,
         "notification_token" => notification_token,
-        "mobile_carrier" => mobile_carrier,
         "imei" => imei} }) do
-    country_code = country_code |> String.replace("+", "")        
+    country_code = country_code |> String.replace("+", "")
 
-    user = Repo.get_by(User, [email: email, is_registered: true])
     user_params = %{"phone" => mobile_number,
                     "country_code" => country_code,
                     "email" => email,
@@ -27,71 +25,82 @@ defmodule Spotlight.UserController do
                     "user_type" => user_type,
                     "imei" => imei,
                     "notification_token" => notification_token,
-                    "mobile_carrier" => mobile_carrier}
-
-    if(!is_nil(user)) do
+                    "mobile_carrier" => "",
+                    "otp_provider_message" => "",
+                    "verification_uuid" => ""}
+    if(user_type != "regular" && user_type != "official") do
       conn
-        |> put_status(:ok)
-        |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "This email is already taken", code: 400})
+        |> put_status(200)
+        |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid user type.", code: 401})
     else
-      #Stale user
-      stale_user = Repo.get_by(User, [email: email])
-      if(!is_nil(stale_user)) do
-        Repo.delete(stale_user)
-      end
-      case user_type do
-        "regular" -> :ok
-        "official" -> :ok
+      {is_otp_sent, v_carrier, v_message, v_uuid} = case {Authy.send_otp(country_code, mobile_number), user_type} do
+        {{:ok, [carrier: c, is_cellphone: true, message: m, seconds_to_expire: _, success: true, uuid: u]}, "regular"} ->
+          {true, c, m, u}
         _ ->
-          conn
-            |> put_status(200)
-            |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid user type.", code: 401})
+          {false, "", "", ""}
+      end
+      user_params = %{user_params | "mobile_carrier" => v_carrier}
+      user_params = %{user_params | "otp_provider_message" => v_message}
+      user_params = %{user_params | "verification_uuid" => v_uuid}
+      username =
+        case user_type do
+          "regular" -> "u_"<>UseridGenerator.generate
+          "official" -> "o_"<>UseridGenerator.generate
+          _ -> ""
         end
+      user_params = Map.put(user_params, "is_registered", true)
+      user_params = Map.put(user_params, "username", username)
+      user_params = Map.put(user_params, "user_type", user_type)
 
       changeset = User.create_changeset(%User{}, user_params)
 
       case Repo.insert(changeset) do
         {:ok, user_insert} ->
-          created_user = Repo.get_by(User, [email: email])
-          username =
-            case user_type do
-              "regular" -> "u_"<>Integer.to_string(created_user.id)
-              "official" -> "o_"<>Integer.to_string(created_user.id)
-              _ -> ""
-            end
+          new_conn = Guardian.Plug.api_sign_in(conn, user_insert)
+          jwt = Guardian.Plug.current_token(new_conn)
+          {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
 
-          register_user_changes  =  %{"is_registered" => true, "username" => username, "user_type" => user_type}
-          register_changeset = Spotlight.User.register_changeset(created_user, register_user_changes)
-
-          case Repo.update(register_changeset) do
-            {:ok, updated_user} ->
-              new_conn = Guardian.Plug.api_sign_in(conn, created_user)
-              jwt = Guardian.Plug.current_token(new_conn)
-              {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
-
-              host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
-              case :ejabberd_auth.set_password(username, host, password) do
-                :ok ->
-                  new_conn
-                    |> put_status(:ok)
-                    |> put_resp_header("authorization", "Bearer "<>jwt)
-                    |> put_resp_header("x-expires", to_string(exp))
-                    |> render("verified_token.json", %{user: updated_user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
-                _ ->
-                  conn
-                    |> put_status(:ok)
-                    |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 422})
-              end
-            {:error, changeset} ->
+          host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
+          case :ejabberd_auth.set_password(username, host, password) do
+            :ok ->
+              new_conn
+                |> put_status(:ok)
+                |> put_resp_header("authorization", "Bearer "<>jwt)
+                |> put_resp_header("x-expires", to_string(exp))
+                |> render("verified_token.json", %{user: user_insert, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: is_otp_sent, verification_uuid: user_params["verification_uuid"]})
+            _ ->
               conn
                 |> put_status(:ok)
-                |> render("create_error.json", changeset: changeset)
+                |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 422})
           end
         {:error, changeset} ->
           conn
             |> put_status(:ok)
             |> render("create_error.json", changeset: changeset)
       end
+    end
+  end
+
+  def verify(conn, %{"country_code" => country_code, "phone" => phone, "verification_code" => verification_code, "verification_uuid" => verification_uuid}) do
+    case Authy.verify_otp(country_code, phone, verification_code) do
+      {:ok, 200, [message: _, success: true]} ->
+        created_user = Repo.get_by(User, [phone: phone, verification_uuid: verification_uuid])
+        verify_user_changes  =  %{"is_phone_verified" => true}
+        verify_changeset = Spotlight.User.verify_changeset(created_user, verify_user_changes)
+        case Repo.update(verify_changeset) do
+          {:ok, update_user} ->
+            conn
+              |> put_status(:ok)
+              |> render("status.json", %{message: "OTP Verified", status: "success"})
+          _ ->
+            conn
+              |> put_status(422)
+              |> render("status.json", %{message: "An error occured", status: "failure"})
+        end
+      _ ->
+        conn
+          |> put_status(:ok)
+          |> render(Spotlight.ErrorView, "error.json", %{title: "Wrong OTP", message: "Incorrect OTP", code: 401})
     end
   end
 
@@ -223,7 +232,7 @@ defmodule Spotlight.UserController do
     changeset = Spotlight.User.update_changeset(user, %{"notification_token" => "", "is_active" => false})
 
     case Repo.update(changeset) do
-      {:ok, user} ->
+      {:ok, _} ->
         conn
           |> put_status(:ok)
           |> render("status.json", %{message: "Logged out successfully.", status: "success"})

@@ -18,6 +18,8 @@ defmodule Spotlight.User do
     field :user_id, :string, size: 50
     field :imei, :string, size: 50
     field :is_active, :boolean, default: true
+    field :is_phone_verified, :boolean, default: false
+    field :otp_provider_message, :string, size: 50
     field :profile_dp, SpotlightApi.ImageUploader.Type
 
     has_many :phone_contacts, Spotlight.PhoneContact
@@ -30,13 +32,12 @@ defmodule Spotlight.User do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  @required_fields ~w(phone country_code name email)
-  @optional_fields ~w(imei mobile_carrier notification_token)
+  @required_fields ~w(phone country_code name)
+  @optional_fields ~w(imei mobile_carrier notification_token otp_provider_message verification_uuid email is_registered username user_type)
   def create_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
     |> validate_length(:phone, min: 10)
-    |> unique_constraint(:email)
   end
 
   @required_fields ~w()
@@ -52,6 +53,13 @@ defmodule Spotlight.User do
   @required_fields ~w(is_registered username user_type)
   @optional_fields ~w()
   def register_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @required_fields, @optional_fields)
+  end
+
+  @required_fields ~w(is_phone_verified verification_uuid)
+  @optional_fields ~w()
+  def verify_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
   end

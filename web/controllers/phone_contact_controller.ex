@@ -26,14 +26,14 @@ defmodule Spotlight.PhoneContactController do
   end
 
    def show(conn, %{"phone_number" => phone}) do
-     contact_user = Repo.get_by(User, [phone: phone, is_registered: true])
+     contact_user = Repo.get_by(User, [phone: phone, is_registered: true, is_active: true])
 
      conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact_user)
    end
 
    def show(conn, %{}) do
      user_id = Guardian.Plug.current_resource(conn).id
-     contacts = Repo.all(from u in User, inner_join: pc in PhoneContact, on: u.phone == pc.phone, where: pc.user_id == ^user_id and u.is_registered==true)
+     contacts = Repo.all(from u in User, inner_join: pc in PhoneContact, on: u.phone == pc.phone, where: pc.user_id == ^user_id and u.is_registered==true and u.is_active == true)
      conn
      |> put_status(:ok)
      |> render("contacts.json", contacts: contacts)
@@ -41,7 +41,7 @@ defmodule Spotlight.PhoneContactController do
 
   defp store_contact(user, contact_country_code, contact_phone, contact_name) do
     contact = Repo.get_by(PhoneContact, [phone: contact_phone, country_code: contact_country_code, name: contact_name, user_id: user.id])
-    contact_user = Repo.get_by(User, [phone: contact_phone, is_registered: true])
+    contact_user = Repo.get_by(User, [phone: contact_phone, is_registered: true, is_active: true])
 
     contact_username = if is_nil(contact_user), do: "", else: contact_user.username
     contact_userid = if is_nil(contact_user), do: "", else: contact_user.user_id
