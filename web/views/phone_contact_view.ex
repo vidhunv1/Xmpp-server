@@ -22,11 +22,17 @@ defmodule Spotlight.PhoneContactView do
   end
 
   def render("contact.json", %{phone_contact: contact}) do
+    dp = if(Map.has_key?(contact, :profile_dp)) do
+      SpotlightApi.ImageUploader.url({contact.profile_dp, contact})
+    else
+      nil
+    end
     %{user_id: contact.user_id,
       username: contact.username,
       phone: contact.phone,
       is_registered: contact.is_registered,
       country_code: contact.country_code,
+      profile_dp: dp,
       name: contact.name}
   end
 end

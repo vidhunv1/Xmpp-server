@@ -17,6 +17,7 @@ defmodule Spotlight.UserController do
         "notification_token" => notification_token,
         "mobile_carrier" => mobile_carrier,
         "imei" => imei} }) do
+    country_code = country_code |> String.replace("+", "")        
 
     user = Repo.get_by(User, [email: email, is_registered: true])
     user_params = %{"phone" => mobile_number,

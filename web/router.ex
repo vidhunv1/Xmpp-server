@@ -21,7 +21,9 @@
     get "/users/id/:user_id", UserController, :show
     get "/users/logout", UserController, :logout
 
-    resources "/contacts", PhoneContactController, only: [:create]
+    post "/contacts/phone", PhoneContactController, :create
+    get "/contacts/phone/:phone_number", PhoneContactController, :show
+    get "/contacts/phone", PhoneContactController, :show
 
     post "/bot", BotController, :init
     get "/bot/:username", BotController, :show
