@@ -20,8 +20,8 @@ defmodule Spotlight.PaymentsDetails do
     timestamps
   end
 
-  @required_fields ~w(transaction_id amount product_info email first_name phone user_id created_by_user_id transaction_secret)
-  @optional_fields ~w()
+  @required_fields ~w(transaction_id amount product_info first_name phone user_id created_by_user_id transaction_secret)
+  @optional_fields ~w(email)
   def create_transaction(model, params \\  %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
