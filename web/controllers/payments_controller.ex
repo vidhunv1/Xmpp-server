@@ -47,7 +47,7 @@ defmodule Spotlight.PaymentsController do
     case Repo.get_by(PaymentsDetails, [transaction_id: txnid, is_delivered: false]) do
       nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not Transaction.", code: 422})
       pd ->
-        hash_string = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>"|"<>pd.transaction_id<>"|"<>inspect(pd.amount)<>"|"<>pd.product_info<>"|"<>pd.first_name<>"|"<>pd.email<>"|||||||||||"<>Application.get_env(:spotlight_api, :PAYMENT_SALT)
+        hash_string = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>"|"<>pd.transaction_id<>"|"<>inspect(pd.amount)<>"|"<>pd.product_info<>"|"<>pd.first_name<>"||||||||||||"<>Application.get_env(:spotlight_api, :PAYMENT_SALT)
         conn
           |> put_status(200)
           |> render("show_details.html", %{payment_details: pd, hash_string: :crypto.hash(:sha512, hash_string) |> Base.encode16 |> String.downcase, payment_key: Application.get_env(:spotlight_api, :PAYMENT_KEY)})
