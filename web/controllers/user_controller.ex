@@ -131,7 +131,7 @@ defmodule Spotlight.UserController do
          |> put_status(:ok)
           |> put_resp_header("authorization", "Bearer "<>jwt)
           |> put_resp_header("x-expires", to_string(exp))
-          |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+          |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: nil, verification_uuid: nil})
       else
         conn
           |> put_status(:ok)
@@ -165,7 +165,7 @@ defmodule Spotlight.UserController do
           |> put_status(:ok)
           |> put_resp_header("authorization", "Bearer "<>jwt)
           |> put_resp_header("x-expires", to_string(exp))
-          |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp)})
+          |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: nil, verification_uuid: nil})
       else
         conn
           |> put_status(:ok)
