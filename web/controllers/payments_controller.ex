@@ -21,7 +21,7 @@ defmodule Spotlight.PaymentsController do
         nil -> conn |> put_status(404) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 422})
         user ->
           txnid = String.slice(UUID.uuid4(:hex), 0..15)
-          params = %{"transaction_secret" => transaction_secret, "created_by_user_id" => current_user.user_id, "transaction_id" => txnid, "amount" => amount, "product_info" => product_info, "email" => user.email, "first_name" => user.name, "phone" => user.phone, "user_id" => user_id}
+          params = %{"transaction_secret" => transaction_secret, "created_by_user_id" => current_user.user_id, "transaction_id" => txnid, "amount" => amount, "product_info" => product_info, "email" => "", "first_name" => user.name, "phone" => user.phone, "user_id" => user_id}
           changeset = Spotlight.PaymentsDetails.create_transaction(%PaymentsDetails{}, params)
 
           case Repo.insert(changeset) do
