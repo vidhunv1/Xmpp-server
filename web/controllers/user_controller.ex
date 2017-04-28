@@ -56,7 +56,9 @@ defmodule Spotlight.UserController do
 
       case Repo.insert(changeset) do
         {:ok, user_insert} ->
-          new_conn = Guardian.Plug.api_sign_in(conn, user_insert)
+          #Need to get ID
+          usr = Repo.get_by(User, [username: username])
+          new_conn = Guardian.Plug.api_sign_in(conn, usr)
           jwt = Guardian.Plug.current_token(new_conn)
           {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
 
@@ -67,7 +69,7 @@ defmodule Spotlight.UserController do
                 |> put_status(:ok)
                 |> put_resp_header("authorization", "Bearer "<>jwt)
                 |> put_resp_header("x-expires", to_string(exp))
-                |> render("verified_token.json", %{user: user_insert, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: is_otp_sent, verification_uuid: user_params["verification_uuid"]})
+                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: is_otp_sent, verification_uuid: user_params["verification_uuid"]})
             _ ->
               conn
                 |> put_status(:ok)
@@ -251,6 +253,7 @@ defmodule Spotlight.UserController do
   end
 
   def show(conn, %{"user_id" => user_id}) do
+    # IO.inspect conn
     user = Guardian.Plug.current_resource(conn)
 
     if(!is_nil(user) && user.user_type == "official") do
