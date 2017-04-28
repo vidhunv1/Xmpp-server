@@ -5,7 +5,7 @@ defmodule Spotlight.PaymentsDetails do
   	field :transaction_id, :string, size: 100
     field :amount, :float, size: 100
 		field :product_info, :string, size: 200
-    field :email, :string, size: 50
+    field :email, :string, size: 50, default: ""
     field :first_name, :string, size: 50
     field :phone, :string, size: 15
     field :status, :string, size: 10
