@@ -27,12 +27,6 @@
 	input4.value = "<%= @payment_details.product_info %>";
 	form.appendChild(input4);
 
-	var input8 = document.createElement('input');
-	input8.type = "hidden";
-	input8.name = "email";
-	input8.value = "<%= @payment_details.email %>";
-	form.appendChild(input8);
-
 	var input5 = document.createElement('input');
 	input5.type = "hidden";
 	input5.name = "firstname";
