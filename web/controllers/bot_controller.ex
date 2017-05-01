@@ -35,7 +35,7 @@ defmodule Spotlight.BotController do
     changeset = bot_user.bot_details |> Bot.menu_changeset(bot_changes)
 
     case Repo.update(changeset) do
-      {:ok, bot_details} ->
+      {:ok, _} ->
         conn
           |> put_status(:ok)
           |> json(menu)

@@ -30,6 +30,7 @@
     post "/bot/menu", BotController, :update_persistent_menu
 
     post "/message", MessageController, :send_message
+    put "/message/image", MessageController, :upload_image
 
     get "/app/init", AppController, :init
     get "/app/version/:platform", AppController, :app_version
