@@ -16,6 +16,6 @@ defmodule Spotlight.MessageData do
   def create_data(model, params \\  %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
-		|> cast_attachments(params, [:data_url])
+		|> cast_attachments(params, [:data])
   end
 end
