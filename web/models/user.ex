@@ -24,6 +24,7 @@ defmodule Spotlight.User do
 
     has_many :phone_contacts, Spotlight.PhoneContact
     has_one :bot_details, Spotlight.Bot
+    has_many :message_data, Spotlight.MessageData
 
     has_many :_contacts, Spotlight.Contact
     has_many :contacts, through: [:_contacts, :contact]
