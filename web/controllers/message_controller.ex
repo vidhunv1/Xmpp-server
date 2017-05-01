@@ -21,6 +21,8 @@ defmodule Spotlight.MessageController do
     changeset = user |> Ecto.build_assoc(:message_data) |> Spotlight.MessageData.create_data(%{"data" => image_data, "data_type" => "image"})
     case Repo.insert(changeset) do
       {:ok, mi} ->
+        conn
+        |> put_status(:ok)
         render(Spotlight.MessageDataView, "message_image.json", %{user: user, image: mi.data})
       {:error, changeset} ->
         Logger.debug inspect(changeset)
