@@ -31,6 +31,7 @@
 
     post "/message", MessageController, :send_message
     put "/message/image", MessageController, :upload_image
+    put "/message/audio", MessageController, :upload_audio
 
     get "/app/init", AppController, :init
     get "/app/version/:platform", AppController, :app_version
