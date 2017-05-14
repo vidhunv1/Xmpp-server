@@ -20,6 +20,7 @@
     get "/users/username/:username", UserController, :show
     get "/users/id/:user_id", UserController, :show
     get "/users/logout", UserController, :logout
+    get "/users/suggestions", UserController, :get_contact_suggestions
 
     post "/contacts/phone", PhoneContactController, :create
     get "/contacts/phone/:phone_number", PhoneContactController, :show
