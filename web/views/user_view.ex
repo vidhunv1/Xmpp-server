@@ -17,6 +17,12 @@ defmodule Spotlight.UserView do
         message: :null}
   end
 
+  def render("show.json", %{users: users}) do
+      %{status: "success",
+        user: render_many(users, Spotlight.UserView, "user.json"),
+        message: :null}
+  end
+
   def render("show_full.json", %{user: user}) do
       %{status: "success",
         user: render_one(user, Spotlight.UserView, "user_full.json"),

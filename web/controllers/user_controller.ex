@@ -268,4 +268,10 @@ defmodule Spotlight.UserController do
       end
     end
   end
+
+  def get_contact_suggestions(conn, %{}) do
+    current_user = Guardian.Plug.current_resource(conn)
+    q = from(p in User, where: p.user_type == "official")
+    conn |> put_status(200) |> render("show.json", users: Repo.all(q))
+  end
 end
