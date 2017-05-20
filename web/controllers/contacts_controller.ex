@@ -14,11 +14,12 @@ defmodule Spotlight.ContactsController do
     case Repo.get_by(User, [user_id: user_id, is_registered: true]) do
       nil -> conn |> put_status(200) |> render(Spotlight.ErrorView, "error.json", %{title: "Not found", message: "Could not find user with the ID.", code: 404})
       contact ->
-        if(!is_nil(Repo.all(Contact, [user_id: current_user.id, contact_id: user_id]))) do
-          conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
-        else
-          Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
-        end
+        # if(!is_nil(Repo.all(Contact, [user_id: current_user.id, contact_id: user_id]))) do
+        #   conn |> put_status(200) |> render(Spotlight.UserView, "show.json", user: contact)
+        # else
+        #   Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
+        # end
+        Contact.changeset(%Contact{}, %{user_id: current_user.id, contact_id: contact.id}) |> Repo.insert
         if contact.user_type == "official" do
           bot_details = (contact |> Repo.preload(:bot_details)).bot_details
           if(!is_nil(bot_details)) do
@@ -68,7 +69,7 @@ defmodule Spotlight.ContactsController do
 
   def get_contact_suggestions(conn, %{}) do
     current_user = Guardian.Plug.current_resource(conn)
-    q = from(p in User, where: p.user_type == "regular")
+    q = from(p in User, where: p.user_type == "official")
     conn |> put_status(200) |> render("show.json", users: Repo.all(q))
   end
 end
