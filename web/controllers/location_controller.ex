@@ -12,7 +12,9 @@ defmodule Spotlight.LocationController do
     user = Guardian.Plug.current_resource(conn)
     case insert_or_update(user, %{"latitude"=> latitude, "longitude"=> longitude}) do
       {:ok, user} ->
-        send_resp(conn, :ok, "")
+        conn
+        |> put_status(:ok)
+        |> render(Spotlight.AppView, "status.json", %{message: "Location Updated", status: "success"})
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -41,7 +43,9 @@ defmodule Spotlight.LocationController do
   def delete(conn, %{}) do
     user = Guardian.Plug.current_resource(conn)
     Repo.get_by(Location, [user_id: user.id]) |> Repo.delete
-    send_resp(conn, :ok, "")
+    conn
+    |> put_status(:ok)
+    |> render(Spotlight.AppView, "status.json", %{message: "Location Updated", status: "success"})
   end
 
   defp insert_or_update(user, %{"latitude"=> latitude, "longitude"=> longitude}) do
