@@ -23,12 +23,13 @@ defmodule Spotlight.LocationController do
   end
 
   def get_nearby_people(conn, %{"latitude" => latitude, "longitude" => longitude}) do
-    user = Guardian.Plug.current_resource(conn)
-    case insert_or_update(user, %{"latitude"=> latitude, "longitude"=> longitude}) do
+    user1 = Guardian.Plug.current_resource(conn)
+    case insert_or_update(user1, %{"latitude"=> latitude, "longitude"=> longitude}) do
       {:ok, user} ->
         query = from l in Location,
-          inner_join: u in User, on: l.user_id == u.id and u.id != ^user.id,
+          inner_join: u in User, on: l.user_id == u.id,
           order_by: fragment("d asc"),
+          where: u.id != ^user1.id,
           select: %{distance: fragment("distance(?,?,?,?)*1.60934 AS d", l.latitude, l.longitude, ^latitude, ^longitude), latitude: l.latitude, longitude: l.longitude, user: u}
         conn
           |> put_status(200)
