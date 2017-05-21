@@ -47,7 +47,7 @@
     get "/contacts/suggestions", ContactsController, :get_contact_suggestions
 
     post "/location/nearby", LocationController, :get_nearby_people
-    get "/location/update", LocationController, :update
+    post "/location/update", LocationController, :update
     get "/location/delete", LocationController, :delete
   end
 end
