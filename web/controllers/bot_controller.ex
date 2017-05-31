@@ -5,6 +5,7 @@ defmodule Spotlight.BotController do
   alias Spotlight.User
   alias Spotlight.Bot
   alias Spotlight.ErrorView
+  import Ecto.Query
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:init, :get, :update_persistent_menu]
 
@@ -56,5 +57,12 @@ defmodule Spotlight.BotController do
         |> put_status(200)
         |> render(ErrorView, "error.json", %{message: "user/bot not found", code: "404"})
     end
+  end
+
+  def discover(conn, %{}) do
+    query = from b in Bot, inner_join: u in Spotlight.User, on: u.id == b.user_id
+    conn
+      |> put_status(200)
+      |> render(Spotlight.BotView, "discover.json", %{discover_bots: Repo.all(query) |> Repo.preload(:user)})
   end
 end

@@ -33,4 +33,17 @@ defmodule Spotlight.BotView do
     %{status: status,
       message: message}
   end
+
+  def render("discover.json", %{discover_bots: d}) do
+    %{status: "success",
+      bots: render_many(d, Spotlight.BotView, "bot.json"),
+      message: :null}
+  end
+
+  def render("bot.json", %{bot: bot}) do
+    %{
+      category: bot.category,
+      user: render_one(bot.user, Spotlight.UserView, "user.json")
+    }
+  end
 end
