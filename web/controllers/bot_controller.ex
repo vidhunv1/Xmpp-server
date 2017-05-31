@@ -59,7 +59,7 @@ defmodule Spotlight.BotController do
     end
   end
 
-  def discover(conn, %{}) do
+  def discover_bots(conn, %{}) do
     query = from b in Bot, inner_join: u in Spotlight.User, on: u.id == b.user_id
     conn
       |> put_status(200)

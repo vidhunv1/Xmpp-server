@@ -25,10 +25,10 @@
     get "/contacts/phone/:phone_number", PhoneContactController, :show
     get "/contacts/phone", PhoneContactController, :show
 
+    get "/discover_bots", BotController, :discover_bots
     post "/bot", BotController, :init
     get "/bot/:username", BotController, :show
     post "/bot/menu", BotController, :update_persistent_menu
-    get "/bot/discover", BotController, :discover
 
     post "/message", MessageController, :send_message
     put "/message/image", MessageController, :upload_image
