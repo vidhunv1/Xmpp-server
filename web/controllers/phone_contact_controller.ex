@@ -43,7 +43,7 @@ defmodule Spotlight.PhoneContactController do
   defp store_contact(user, contact_country_code, contact_phone, contact_name) do
     contact = Repo.get_by(PhoneContact, [phone: contact_phone, country_code: contact_country_code, name: contact_name, user_id: user.id])
     query = from u in User, where: u.phone == ^contact_phone and u.is_registered == true and u.is_active == true, order_by: fragment("id desc"), limit: 1, select: u
-    contact_user = hd(Repo.all(query))
+    contact_user = first(Repo.all(query))
     contact_username = if is_nil(contact_user), do: "", else: contact_user.username
     contact_userid = if is_nil(contact_user), do: "", else: contact_user.user_id
 
