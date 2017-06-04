@@ -1,6 +1,7 @@
 defmodule Spotlight.PhoneContactController do
   use Spotlight.Web, :controller
   require Logger
+  import Ecto.Query
 
   alias Spotlight.PhoneContact
   alias Spotlight.User
@@ -41,8 +42,8 @@ defmodule Spotlight.PhoneContactController do
 
   defp store_contact(user, contact_country_code, contact_phone, contact_name) do
     contact = Repo.get_by(PhoneContact, [phone: contact_phone, country_code: contact_country_code, name: contact_name, user_id: user.id])
-    contact_user = Repo.get_by(User, [phone: contact_phone, is_registered: true, is_active: true])
-
+    query = from u in User, where: u.phone == ^contact_phone and u.is_registered == true and u.is_active == true, order_by: fragment("id desc"), limit: 1, select: u
+    contact_user = Repo.all(query)
     contact_username = if is_nil(contact_user), do: "", else: contact_user.username
     contact_userid = if is_nil(contact_user), do: "", else: contact_user.user_id
 
