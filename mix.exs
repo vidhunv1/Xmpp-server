@@ -4,7 +4,7 @@ defmodule Spotlight.Mixfile do
   def project do
     [app: :spotlight_api,
      version: "0.0.1",
-     elixir: "~> 1.3",
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -33,7 +33,7 @@ defmodule Spotlight.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.1"},
+    [{:phoenix, "~> 1.2.4"},
      {:p1_utils, "~> 1.0.7"},
      {:relx, "3.22.0"},
      {:exrm, "~> 1.0.8"},
@@ -42,7 +42,7 @@ defmodule Spotlight.Mixfile do
      {:postgrex, ">= 0.12.1"},
      {:gettext, "~> 0.11"},
      {:comeonin, "~> 2.0"},
-     {:guardian, "~> 0.13.0"},
+     {:guardian, "~> 0.14.4"},
      {:cors_plug, "~> 1.1"},
      {:ejabberd, "~> 16.6"},
      {:p1_pgsql, ">= 1.1.0"},
@@ -51,8 +51,9 @@ defmodule Spotlight.Mixfile do
      {:arc, "~> 0.8.0"},
      {:arc_ecto, "~> 0.7.0"},
      {:ex_aws, "~> 1.1"},
-     {:poison, "~> 2.0"},
+     {:poison, "~> 2.2.0"},
      {:httpoison, "~> 0.11.1"},
+     {:sweet_xml, "~> 0.6"},
      {:phoenix_html, "~> 2.6"},
      {:hackney, "~> 1.7.1"}]
   end
