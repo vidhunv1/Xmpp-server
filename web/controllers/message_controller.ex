@@ -18,15 +18,18 @@ defmodule Spotlight.MessageController do
 
   def upload_image(conn, %{"image" => image_data}) do
     user = Guardian.Plug.current_resource(conn)
-    file_extension = Path.extname(image_data.filename)
-    file_uuid = UUID.uuid4(:hex)
-    s3_filename = "#{file_uuid}#{file_extension}"
-    s3_bucket = "spotlight.test"
-    {:ok, file_binary} = File.read(image_data.path)
-    {:ok, a} = ExAws.S3.put_object(s3_bucket, s3_filename, file_binary) |> ExAws.request
-    conn
-    |> put_status(:ok)
-    |> render(Spotlight.MessageDataView, "message_image.json", %{user: user, image: "http://spotlight.test.s3.amazonaws.com/#{s3_filename}"})
+    changeset = user |> Ecto.build_assoc(:message_data) |> Spotlight.MessageData.create_data(%{"data" => image_data, "data_type" => "image"})
+    case Repo.insert(changeset) do
+      {:ok, mi} ->
+        conn
+        |> put_status(:ok)
+        |> render(Spotlight.MessageDataView, "message_image.json", %{user: user, image: mi.data})
+      {:error, changeset} ->
+        Logger.debug inspect(changeset)
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
   end
 
   def upload_audio(conn, %{"audio" => audio_data}) do
