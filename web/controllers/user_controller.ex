@@ -44,11 +44,12 @@ defmodule Spotlight.UserController do
       user_params = Map.put(user_params, "is_registered", true)
       user_params = Map.put(user_params, "username", username)
       user_params = Map.put(user_params, "user_type", user_type)
+      user_params = Map.put(user_params, "user_id", user_id)
 
       changeset = User.create_changeset(%User{}, user_params)
 
       case Repo.insert(changeset) do
-        {:ok, _} ->
+        {:ok, _g} ->
           #Need to get ID
           usr = Repo.get_by(User, [username: username])
           new_conn = Guardian.Plug.api_sign_in(conn, usr)
