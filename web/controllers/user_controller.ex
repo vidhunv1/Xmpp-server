@@ -13,6 +13,7 @@ defmodule Spotlight.UserController do
         "password" => password,
         "country_code" => country_code,
         "phone" => mobile_number,
+        "user_id" => user_id,
         "user_type" => user_type,
         "notification_token" => notification_token,
         "imei" => imei} }) do
@@ -24,6 +25,7 @@ defmodule Spotlight.UserController do
                     "name" => name,
                     "user_type" => user_type,
                     "imei" => imei,
+                    "user_id" => user_id,
                     "notification_token" => notification_token,
                     "mobile_carrier" => "",
                     "otp_provider_message" => "",
@@ -33,19 +35,10 @@ defmodule Spotlight.UserController do
         |> put_status(200)
         |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid user type.", code: 401})
     else
-      {is_otp_sent, v_carrier, v_message, v_uuid} = case {Authy.send_otp(country_code, mobile_number), user_type} do
-        {{:ok, [carrier: c, is_cellphone: true, message: m, seconds_to_expire: _, success: true, uuid: u]}, "regular"} ->
-          {true, c, m, u}
-        _ ->
-          {false, "", "", ""}
-      end
-      user_params = %{user_params | "mobile_carrier" => v_carrier}
-      user_params = %{user_params | "otp_provider_message" => v_message}
-      user_params = %{user_params | "verification_uuid" => v_uuid}
       username =
         case user_type do
-          "regular" -> "u_"<>UseridGenerator.generate
-          "official" -> "o_"<>UseridGenerator.generate
+          "regular" -> "u_"<>user_id
+          "official" -> "o_"<>user_id
           _ -> ""
         end
       user_params = Map.put(user_params, "is_registered", true)
@@ -55,7 +48,7 @@ defmodule Spotlight.UserController do
       changeset = User.create_changeset(%User{}, user_params)
 
       case Repo.insert(changeset) do
-        {:ok, user_insert} ->
+        {:ok, _} ->
           #Need to get ID
           usr = Repo.get_by(User, [username: username])
           new_conn = Guardian.Plug.api_sign_in(conn, usr)
@@ -69,7 +62,7 @@ defmodule Spotlight.UserController do
                 |> put_status(:ok)
                 |> put_resp_header("authorization", "Bearer "<>jwt)
                 |> put_resp_header("x-expires", to_string(exp))
-                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: is_otp_sent, verification_uuid: user_params["verification_uuid"]})
+                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: false, verification_uuid: ""})
             _ ->
               conn
                 |> put_status(:ok)
@@ -90,7 +83,7 @@ defmodule Spotlight.UserController do
         verify_user_changes  =  %{"is_phone_verified" => true}
         verify_changeset = Spotlight.User.verify_changeset(created_user, verify_user_changes)
         case Repo.update(verify_changeset) do
-          {:ok, update_user} ->
+          {:ok, _} ->
             conn
               |> put_status(:ok)
               |> render("status.json", %{message: "OTP Verified", status: "success"})
@@ -238,7 +231,7 @@ defmodule Spotlight.UserController do
         conn
           |> put_status(:ok)
           |> render("status.json", %{message: "Logged out successfully.", status: "success"})
-      {:error, changeset} ->
+      {:error, _} ->
         conn
           |> put_status(:ok)
           |> render(Spotlight.ErrorView, "error.json", %{title: "Error", message: "Error logging out.", code: 400})
