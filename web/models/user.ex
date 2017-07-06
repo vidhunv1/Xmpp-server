@@ -60,7 +60,7 @@ defmodule Spotlight.User do
   end
 
   @required_fields ~w(verification_uuid)
-  @optional_fields ~w(is_phone_verified)
+  @optional_fields ~w(is_phone_verified notification_token)
   def verify_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)

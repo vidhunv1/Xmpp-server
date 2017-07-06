@@ -8,30 +8,18 @@ defmodule Spotlight.UserController do
 
   def create(conn,
     %{"user" =>
-      %{"name" => name,
-        "email" => email,
-        "country_code" => country_code,
+      %{"country_code" => country_code,
         "phone" => mobile_number,
-        "user_id" => user_id,
         "user_type" => user_type,
-        "notification_token" => notification_token,
         "imei" => imei} }) do
 
     check_user = Repo.get_by(User, [user_id: user_id])
     is_user_exists = !is_nil(check_user)
     country_code = country_code |> String.replace("+", "")
-    user_id =
-      case user_type do
-        "regular" ->
-          country_code<>mobile_number
-        "official" -> user_id |> String.downcase
-        _ -> ""
-      end
+    user_id = country_code<>mobile_number
 
     user_params = %{"phone" => mobile_number,
                     "country_code" => country_code,
-                    "email" => email,
-                    "name" => name,
                     "user_type" => user_type,
                     "imei" => imei,
                     "user_id" => user_id,
@@ -39,7 +27,7 @@ defmodule Spotlight.UserController do
                     "mobile_carrier" => "",
                     "otp_provider_message" => "",
                     "verification_uuid" => ""}
-    if(user_type != "regular" && user_type != "official") do
+    if(user_type != "regular") do
       conn
         |> put_status(200)
         |>  render(Spotlight.ErrorView, "error.json", %{title: "", message: "Invalid user type.", code: 401})
@@ -99,11 +87,11 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def verify(conn, %{"country_code" => country_code, "phone" => phone, "verification_code" => verification_code, "verification_uuid" => verification_uuid, "password" => password}) do
+  def verify(conn, %{"country_code" => country_code, "phone" => phone, "verification_code" => verification_code, "verification_uuid" => verification_uuid, "password" => password, "notification_token" => notification_token}) do
     case Authy.verify_otp(country_code, phone, verification_code) do
       {:ok, 200, [message: _, success: true]} ->
         user = Repo.get_by(User, [phone: phone, verification_uuid: verification_uuid])
-        verify_user_changes  =  %{"is_phone_verified" => true}
+        verify_user_changes  =  %{"is_phone_verified" => true, "notification_token" => notification_token}
         verify_changeset = Spotlight.User.verify_changeset(user, verify_user_changes)
         case Repo.update(verify_changeset) do
           {:ok, _} ->
