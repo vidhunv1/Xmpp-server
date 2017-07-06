@@ -13,7 +13,7 @@ defmodule Spotlight.UserController do
         "user_type" => user_type,
         "imei" => imei} }) do
 
-    check_user = Repo.get_by(User, [user_id: user_id])
+    check_user = Repo.get_by(User, [phone: mobile_number, country_code: country_code])
     is_user_exists = !is_nil(check_user)
     country_code = country_code |> String.replace("+", "")
     user_id = country_code<>mobile_number
@@ -22,8 +22,6 @@ defmodule Spotlight.UserController do
                     "country_code" => country_code,
                     "user_type" => user_type,
                     "imei" => imei,
-                    "user_id" => user_id,
-                    "notification_token" => notification_token,
                     "mobile_carrier" => "",
                     "otp_provider_message" => "",
                     "verification_uuid" => ""}
