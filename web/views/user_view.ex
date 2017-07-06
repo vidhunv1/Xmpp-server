@@ -23,15 +23,24 @@ defmodule Spotlight.UserView do
         message: :null}
   end
 
-  def render("verified_token.json", %{user: user, access_token: token, exp: exp, is_otp_sent: otp_sent, verification_uuid: uuid}) do
+  def render("create.json", %{user: user, is_otp_sent: otp_sent, verification_uuid: uuid}) do
       %{status: "success",
         message: "User details updated.",
         user: render_one(user, Spotlight.UserView, "user.json"),
-        access_token: token,
-        expires: exp,
         is_otp_sent: otp_sent,
         verification_uuid: uuid
         }
+  end
+
+
+  def render("verified_token.json", %{user: user, access_token: token, exp: exp, is_verification_success: otp_success}) do
+        %{status: "success",
+          message: "User details updated.",
+          user: render_one(user, Spotlight.UserView, "user.json"),
+          access_token: token,
+          expires: exp,
+          is_verification_success: otp_success
+          }
   end
 
   def render("status.json", %{message: message, status: status}) do

@@ -10,13 +10,15 @@ defmodule Spotlight.UserController do
     %{"user" =>
       %{"name" => name,
         "email" => email,
-        "password" => password,
         "country_code" => country_code,
         "phone" => mobile_number,
         "user_id" => user_id,
         "user_type" => user_type,
         "notification_token" => notification_token,
         "imei" => imei} }) do
+
+    check_user = Repo.get_by(User, [user_id: user_id])
+    is_user_exists = !is_nil(check_user)
     country_code = country_code |> String.replace("+", "")
     user_id =
       case user_type do
@@ -48,64 +50,79 @@ defmodule Spotlight.UserController do
             _ ->
               {false, "", "", ""}
       end
-      user_params = %{user_params | "mobile_carrier" => v_carrier}
-      user_params = %{user_params | "otp_provider_message" => v_message}
-      user_params = %{user_params | "verification_uuid" => v_uuid}
 
-      username =
-        case user_type do
-          "regular" ->
-            "u_"<>user_id
-          "official" -> "o_"<>user_id
-          _ -> ""
-        end
-      user_params = Map.put(user_params, "is_registered", true)
-      user_params = Map.put(user_params, "username", username)
-      user_params = Map.put(user_params, "user_type", user_type)
-      user_params = Map.put(user_params, "user_id", user_id)
-
-      changeset = User.create_changeset(%User{}, user_params)
-
-      case Repo.insert(changeset) do
-        {:ok, _g} ->
-          #Need to get ID
-          usr = Repo.get_by(User, [username: username])
-          new_conn = Guardian.Plug.api_sign_in(conn, usr)
-          jwt = Guardian.Plug.current_token(new_conn)
-          {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
-
-          host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
-          case :ejabberd_auth.set_password(username, host, password) do
-            :ok ->
-              new_conn
-                |> put_status(:ok)
-                |> put_resp_header("authorization", "Bearer "<>jwt)
-                |> put_resp_header("x-expires", to_string(exp))
-                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: is_otp_sent, verification_uuid: v_uuid})
-            _ ->
-              conn
-                |> put_status(:ok)
-                |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 422})
-          end
-        {:error, changeset} ->
-          conn
-            |> put_status(:ok)
-            |> render("create_error.json", changeset: changeset)
-      end
-    end
-  end
-
-  def verify(conn, %{"country_code" => country_code, "phone" => phone, "verification_code" => verification_code, "verification_uuid" => verification_uuid}) do
-    case Authy.verify_otp(country_code, phone, verification_code) do
-      {:ok, 200, [message: _, success: true]} ->
-        created_user = Repo.get_by(User, [phone: phone, verification_uuid: verification_uuid])
-        verify_user_changes  =  %{"is_phone_verified" => true}
-        verify_changeset = Spotlight.User.verify_changeset(created_user, verify_user_changes)
+      if(is_user_exists) do
+        verify_user_changes  =  %{"verification_uuid" => v_uuid}
+        verify_changeset = Spotlight.User.verify_changeset(check_user, verify_user_changes)
         case Repo.update(verify_changeset) do
           {:ok, _} ->
             conn
               |> put_status(:ok)
-              |> render("status.json", %{message: "OTP Verified", status: "success"})
+              |> render("create.json", %{user: check_user, is_otp_sent: is_otp_sent, verification_uuid: v_uuid})
+          _ ->
+            conn
+              |> put_status(:ok)
+              |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 500})
+        end
+
+      else
+        user_params = %{user_params | "mobile_carrier" => v_carrier}
+        user_params = %{user_params | "otp_provider_message" => v_message}
+        user_params = %{user_params | "verification_uuid" => v_uuid}
+
+        username =
+          case user_type do
+            "regular" ->
+              "u_"<>user_id
+              "official" -> "o_"<>user_id
+              _ -> ""
+          end
+          user_params = Map.put(user_params, "is_registered", true)
+          user_params = Map.put(user_params, "username", username)
+          user_params = Map.put(user_params, "user_type", user_type)
+          user_params = Map.put(user_params, "user_id", user_id)
+
+          changeset = User.create_changeset(%User{}, user_params)
+
+          case Repo.insert(changeset) do
+            {:ok, _} ->
+              usr = Repo.get_by(User, [username: username])
+              conn
+                |> put_status(:ok)
+                |> render("create.json", %{user: usr, is_otp_sent: is_otp_sent, verification_uuid: v_uuid})
+            {:error, changeset} ->
+              conn
+                |> put_status(:ok)
+                |> render("create_error.json", changeset: changeset)
+            end
+          end
+    end
+  end
+
+  def verify(conn, %{"country_code" => country_code, "phone" => phone, "verification_code" => verification_code, "verification_uuid" => verification_uuid, "password" => password}) do
+    case Authy.verify_otp(country_code, phone, verification_code) do
+      {:ok, 200, [message: _, success: true]} ->
+        user = Repo.get_by(User, [phone: phone, verification_uuid: verification_uuid])
+        verify_user_changes  =  %{"is_phone_verified" => true}
+        verify_changeset = Spotlight.User.verify_changeset(user, verify_user_changes)
+        case Repo.update(verify_changeset) do
+          {:ok, _} ->
+            new_conn = Guardian.Plug.api_sign_in(conn, user)
+            jwt = Guardian.Plug.current_token(new_conn)
+            {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
+            host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
+            case :ejabberd_auth.set_password(user.username, host, password) do
+              :ok ->
+                new_conn
+                  |> put_status(:ok)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp), is_verification_success: true})
+                _ ->
+                  conn
+                  |> put_status(:ok)
+                  |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 422})
+            end
           _ ->
             conn
               |> put_status(422)

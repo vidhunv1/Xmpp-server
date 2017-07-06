@@ -59,8 +59,8 @@ defmodule Spotlight.User do
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  @required_fields ~w(is_phone_verified verification_uuid)
-  @optional_fields ~w()
+  @required_fields ~w(verification_uuid)
+  @optional_fields ~w(is_phone_verified)
   def verify_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
