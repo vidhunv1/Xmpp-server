@@ -34,7 +34,7 @@ defmodule Spotlight.User do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  @required_fields ~w(phone country_code name user_id username)
+  @required_fields ~w(phone country_code user_id username)
   @optional_fields ~w(imei mobile_carrier notification_token otp_provider_message verification_uuid email is_registered user_type)
   def create_changeset(struct, params \\ %{}) do
     struct
