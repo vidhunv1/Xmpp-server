@@ -139,10 +139,10 @@ defmodule Spotlight.PaymentsController do
       "udf4" => udf4,
       "udf5" => udf5 }) do
     user = Guardian.Plug.current_resource(conn)
-
+    
     key = Application.get_env(:spotlight_api, :PAYMENT_KEY)
     salt = Application.get_env(:spotlight_api, :PAYMENT_SALT)
-    user_credentials = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>user.country_code<>user.phone
+    user_credentials = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>":"<>user.country_code<>user.phone
 
     #payment_hash
     payment_hash_string = key<>"|"<>txnid<>"|"<>amount<>"|"<>product_info<>"|"<>user.name<>"|"<>user.country_code<>user.phone<>"@mobile.com|"<>udf1<>"|"<>udf2<>"|"<>udf3<>"|"<>udf4<>"|"<>udf5<>"||||||"<>salt
@@ -179,7 +179,11 @@ defmodule Spotlight.PaymentsController do
     delete_user_card_hash: delete_user_card_hash,
     get_user_cards_hash: get_user_cards_hash,
     edit_user_card_hash: edit_user_card_hash,
-    save_user_card_hash: save_user_card_hash}
+    save_user_card_hash: save_user_card_hash,
+    first_name: user.name,
+    user_credentials: user_credentials,
+    phone: user.country_code<>user.phone,
+    email: user.country_code<>user.phone<>"@mobile.com"}
 
     conn
       |> put_status(:ok)

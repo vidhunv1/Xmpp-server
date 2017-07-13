@@ -29,7 +29,11 @@ defmodule Spotlight.PaymentsView do
     delete_user_card_hash: delete_user_card_hash,
     get_user_cards_hash: get_user_cards_hash,
     edit_user_card_hash: edit_user_card_hash,
-    save_user_card_hash: save_user_card_hash}) do
+    save_user_card_hash: save_user_card_hash,
+    first_name: first_name,
+    user_credentials: user_credentials,
+    phone: phone,
+    email: email}) do
 
     %{
       payment_hash: payment_hash,
@@ -38,7 +42,12 @@ defmodule Spotlight.PaymentsView do
       delete_user_card_hash: delete_user_card_hash,
       get_user_cards_hash: get_user_cards_hash,
       edit_user_card_hash: edit_user_card_hash,
-      save_user_card_hash: save_user_card_hash}
+      save_user_card_hash: save_user_card_hash,
+      first_name: first_name,
+      user_credentials: user_credentials,
+      phone: phone,
+      email: email
+    }
 
   end
 end
