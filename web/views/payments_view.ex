@@ -21,4 +21,24 @@ defmodule Spotlight.PaymentsView do
   def render("show_merchant_hash.json", %{payments: hash}) do
     %{card_token: hash.card_token, merchant_hash: hash.merchant_hash}
   end
+
+  def render("hashes.json", %{
+    payment_hash: payment_hash,
+    vas_for_mobile_sdk_hash: vas_for_mobile_sdk_hash,
+    payment_related_details_for_mobile_sdk_hash: payment_related_details_for_mobile_sdk_hash,
+    delete_user_card_hash: delete_user_card_hash,
+    get_user_cards_hash: get_user_cards_hash,
+    edit_user_card_hash: edit_user_card_hash,
+    save_user_card_hash: save_user_card_hash}) do
+
+    %{
+      payment_hash: payment_hash,
+      vas_for_mobile_sdk_hash: vas_for_mobile_sdk_hash,
+      payment_related_details_for_mobile_sdk_hash: payment_related_details_for_mobile_sdk_hash,
+      delete_user_card_hash: delete_user_card_hash,
+      get_user_cards_hash: get_user_cards_hash,
+      edit_user_card_hash: edit_user_card_hash,
+      save_user_card_hash: save_user_card_hash}
+
+  end
 end

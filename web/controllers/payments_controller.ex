@@ -7,7 +7,7 @@ defmodule Spotlight.PaymentsController do
   alias Spotlight.PaymentsDetails
   alias Spotlight.PaymentMerchantHash
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash, :delete_merchant_hash]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash, :delete_merchant_hash, :get_payment_hash]
   plug Plug.Parsers, parsers: [:urlencoded]
   plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
@@ -127,5 +127,62 @@ defmodule Spotlight.PaymentsController do
     conn
     |> put_status(:ok)
     |> render(Spotlight.AppView, "status.json", %{message: "merchant hash deleted", status: "success"})
+  end
+
+  def get_payment_hash(conn,
+    %{"amount" => amount,
+      "txnid" => txnid,
+      "product_info" => product_info,
+      "udf1" => udf1,
+      "udf2" => udf2,
+      "udf3" => udf3,
+      "udf4" => udf4,
+      "udf5" => udf5 }) do
+    user = Guardian.Plug.current_resource(conn)
+
+    key = Application.get_env(:spotlight_api, :PAYMENT_KEY)
+    salt = Application.get_env(:spotlight_api, :PAYMENT_SALT)
+    user_credentials = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>user.country_code<>user.phone
+
+    #payment_hash
+    payment_hash_string = key<>"|"<>txnid<>"|"<>amount<>"|"<>product_info<>"|"<>user.name<>"|"<>user.country_code<>user.phone<>"@mobile.com|"<>udf1<>"|"<>udf2<>"|"<>udf3<>"|"<>udf4<>"|"<>udf5<>"||||||"<>salt
+    payment_hash = Base.encode16(:crypto.hash(:sha512, payment_hash_string), case: :lower)
+
+    #vas_for_mobile_sdk_hash
+    vas_for_mobile_sdk_hash_string = key<>"|vas_for_mobile_sdk|default|"<>salt
+    vas_for_mobile_sdk_hash = Base.encode16(:crypto.hash(:sha512, vas_for_mobile_sdk_hash_string), case: :lower)
+
+    #payment_related_details_for_mobile_sdk_hash
+    payment_related_details_for_mobile_sdk_hash_string = key<>"|payment_related_details_for_mobile_sdk|"<>user_credentials<>"|"<>salt
+    payment_related_details_for_mobile_sdk_hash = Base.encode16(:crypto.hash(:sha512, payment_related_details_for_mobile_sdk_hash_string), case: :lower)
+
+    #delete_user_card_hash
+    delete_user_card_hash_string = key<>"|delete_user_card|"<>user_credentials<>"|"<>salt
+    delete_user_card_hash = Base.encode16(:crypto.hash(:sha512, delete_user_card_hash_string), case: :lower)
+
+    #get_user_cards_hash
+    get_user_cards_hash_string = key<>"|get_user_cards|"<>user_credentials<>"|"<>salt
+    get_user_cards_hash = Base.encode16(:crypto.hash(:sha512, get_user_cards_hash_string), case: :lower)
+
+    #edit_user_card_hash
+    edit_user_card_hash_string = key<>"|edit_user_card|"<>user_credentials<>"|"<>salt
+    edit_user_card_hash = Base.encode16(:crypto.hash(:sha512, edit_user_card_hash_string), case: :lower)
+
+    #save_user_card_hash
+    save_user_card_hash_string = key<>"|save_user_card|"<>user_credentials<>"|"<>salt
+    save_user_card_hash = Base.encode16(:crypto.hash(:sha512, save_user_card_hash_string), case: :lower)
+
+    hashes = %{
+    payment_hash: payment_hash,
+    vas_for_mobile_sdk_hash: vas_for_mobile_sdk_hash,
+    payment_related_details_for_mobile_sdk_hash: payment_related_details_for_mobile_sdk_hash,
+    delete_user_card_hash: delete_user_card_hash,
+    get_user_cards_hash: get_user_cards_hash,
+    edit_user_card_hash: edit_user_card_hash,
+    save_user_card_hash: save_user_card_hash}
+q
+    conn
+      |> put_status(:ok)
+      |> render("hashes.json", hashes)
   end
 end

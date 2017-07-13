@@ -43,6 +43,7 @@
     post "/payment/hash", PaymentsController, :store_merchant_hash
     delete "/payment/hash/:card_token", PaymentsController, :delete_merchant_hash
     get "/payment/hash/:merchant_key/:user_credentials", PaymentsController, :get_merchant_hash
+    post "/payment/get_hash", PaymentsController, :get_payment_hash
 
     get "/contacts/add/:user_id", ContactsController, :add
     get "/contacts/get", ContactsController, :get
