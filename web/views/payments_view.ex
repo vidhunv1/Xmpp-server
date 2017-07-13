@@ -13,4 +13,12 @@ defmodule Spotlight.PaymentsView do
         productinfo: productinfo,
         amount: amount}
   end
+
+  def render("show_merchant_hashes.json", %{payment_merchant_hashes: hashes}) do
+    %{merchant_hashes: render_many(hashes, Spotlight.PaymentsView, "show_merchant_hash.json")}
+  end
+
+  def render("show_merchant_hash.json", %{payments: hash}) do
+    %{card_token: hash.card_token, merchant_hash: hash.merchant_hash}
+  end
 end

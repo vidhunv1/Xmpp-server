@@ -5,6 +5,7 @@ defmodule Spotlight.PaymentsController do
 
   alias Spotlight.User
   alias Spotlight.PaymentsDetails
+  alias Spotlight.PaymentMerchantHash
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create]
   plug Plug.Parsers, parsers: [:urlencoded]
@@ -97,5 +98,24 @@ defmodule Spotlight.PaymentsController do
       Logger.info "Invalid hash value"
       send_resp(conn, 401, "Invalid hash value")
     end
+  end
+
+  def store_merchant_hash(conn, %{"merchant_hash" => merchant_hash_params}) do
+    changeset = PaymentMerchantHash.changeset(%PaymentMerchantHash{}, merchant_hash_params)
+    case Repo.insert(changeset) do
+      {:ok, hash} ->
+        conn
+        |> put_status(:created)
+        |> render(Spotlight.AppView, "status.json", %{message: "Merchant Hash updated", status: "success"})
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+
+  def get_merchant_hash(conn, %{"merchant_key" => merchant_key, "user_credentials" => user_credentials}) do
+    q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_credentials == ^user_credentials)
+    conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: Repo.all(q))
   end
 end

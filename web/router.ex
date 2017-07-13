@@ -40,6 +40,8 @@
     post "/payment", PaymentsController, :create
     get "/payment/:transaction_id", PaymentsController, :get
     post "/payment/transaction", PaymentsController, :transaction
+    get "/payment/hash/:merchant_key/:user_credentials", PaymentsController, :get_merchant_hash
+    post "/payment/hash", PaymentsController, :store_merchant_hash
 
     get "/contacts/add/:user_id", ContactsController, :add
     get "/contacts/get", ContactsController, :get
