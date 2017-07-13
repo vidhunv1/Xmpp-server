@@ -7,7 +7,7 @@ defmodule Spotlight.PaymentsController do
   alias Spotlight.PaymentsDetails
   alias Spotlight.PaymentMerchantHash
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash, :delete_merchant_hash]
   plug Plug.Parsers, parsers: [:urlencoded]
   plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
@@ -117,5 +117,12 @@ defmodule Spotlight.PaymentsController do
   def get_merchant_hash(conn, %{"merchant_key" => merchant_key, "user_credentials" => user_credentials}) do
     q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_credentials == ^user_credentials)
     conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: Repo.all(q))
+  end
+
+  def delete_merchant_hash(conn, %{"card_token" => card_token}) do
+    Repo.get_by(PaymentMerchantHash, [card_token: card_token]) |> Repo.delete
+    conn
+    |> put_status(:ok)
+    |> render(Spotlight.AppView, "status.json", %{message: "merchant hash deleted", status: "success"})
   end
 end
