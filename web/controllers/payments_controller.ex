@@ -180,7 +180,7 @@ defmodule Spotlight.PaymentsController do
     get_user_cards_hash: get_user_cards_hash,
     edit_user_card_hash: edit_user_card_hash,
     save_user_card_hash: save_user_card_hash}
-q
+
     conn
       |> put_status(:ok)
       |> render("hashes.json", hashes)
