@@ -26,6 +26,7 @@ defmodule Spotlight.User do
     has_one :bot_details, Spotlight.Bot
     has_one :location, Spotlight.Location
     has_many :message_data, Spotlight.MessageData
+    has_many :payment_merchant_hashes, Spotlight.PaymentMerchantHash
 
     has_many :_contacts, Spotlight.Contact
     has_many :contacts, through: [:_contacts, :contact]

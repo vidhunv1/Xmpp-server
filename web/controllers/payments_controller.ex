@@ -101,7 +101,8 @@ defmodule Spotlight.PaymentsController do
   end
 
   def store_merchant_hash(conn, %{"merchant_hash" => merchant_hash_params}) do
-    changeset = PaymentMerchantHash.changeset(%PaymentMerchantHash{}, merchant_hash_params)
+    user = Guardian.Plug.current_resource(conn)
+    changeset = user |> Ecto.build_assoc(:payment_merchant_hashes) |> PaymentMerchantHash.changeset(merchant_hash_params)
     case Repo.insert(changeset) do
       {:ok, hash} ->
         conn
@@ -115,12 +116,14 @@ defmodule Spotlight.PaymentsController do
   end
 
   def get_merchant_hash(conn, %{"merchant_key" => merchant_key, "user_credentials" => user_credentials}) do
-    q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_credentials == ^user_credentials)
+    user = Guardian.Plug.current_resource(conn)
+    q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_credentials == ^user_credentials and p.user_id == ^user.id)
     conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: Repo.all(q))
   end
 
   def delete_merchant_hash(conn, %{"card_token" => card_token}) do
-    Repo.get_by(PaymentMerchantHash, [card_token: card_token]) |> Repo.delete
+    user = Guardian.Plug.current_resource(conn)
+    Repo.get_by(PaymentMerchantHash, [card_token: card_token, user_id: user.id]) |> Repo.delete
     conn
     |> put_status(:ok)
     |> render(Spotlight.AppView, "status.json", %{message: "merchant hash deleted", status: "success"})

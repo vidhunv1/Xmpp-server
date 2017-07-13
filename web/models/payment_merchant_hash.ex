@@ -7,6 +7,7 @@ defmodule Spotlight.PaymentMerchantHash do
     field :card_token, :string
     field :merchant_hash, :string
 
+    belongs_to :user, Spotlight.User
     timestamps()
   end
 
