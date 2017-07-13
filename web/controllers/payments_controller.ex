@@ -7,7 +7,7 @@ defmodule Spotlight.PaymentsController do
   alias Spotlight.PaymentsDetails
   alias Spotlight.PaymentMerchantHash
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash]
   plug Plug.Parsers, parsers: [:urlencoded]
   plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
