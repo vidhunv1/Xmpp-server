@@ -32,6 +32,7 @@ defmodule Spotlight.PaymentsView do
     save_user_card_hash: save_user_card_hash,
     first_name: first_name,
     user_credentials: user_credentials,
+    key: key,
     phone: phone,
     email: email}) do
 
@@ -44,6 +45,7 @@ defmodule Spotlight.PaymentsView do
       edit_user_card_hash: edit_user_card_hash,
       save_user_card_hash: save_user_card_hash,
       first_name: first_name,
+      merchant_key: key,
       user_credentials: user_credentials,
       phone: phone,
       email: email

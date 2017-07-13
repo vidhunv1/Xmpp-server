@@ -182,6 +182,7 @@ defmodule Spotlight.PaymentsController do
     save_user_card_hash: save_user_card_hash,
     first_name: user.name,
     user_credentials: user_credentials,
+    key: key,
     phone: user.country_code<>user.phone,
     email: user.country_code<>user.phone<>"@mobile.com"}
 
