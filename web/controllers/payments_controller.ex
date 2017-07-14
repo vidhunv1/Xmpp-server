@@ -7,7 +7,7 @@ defmodule Spotlight.PaymentsController do
   alias Spotlight.PaymentsDetails
   alias Spotlight.PaymentMerchantHash
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash, :delete_merchant_hash, :get_payment_hash]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Spotlight.GuardianErrorHandler] when action in [:create, :store_merchant_hash, :get_merchant_hash, :delete_merchant_hash, :get_payment_hash, :put_merchant_hash, :get_merchant_hash_by_id]
   plug Plug.Parsers, parsers: [:urlencoded]
   plug :accepts, ["x-www-form-urlencoded"] when action in [:transaction]
 
@@ -102,23 +102,63 @@ defmodule Spotlight.PaymentsController do
 
   def store_merchant_hash(conn, %{"merchant_hash" => merchant_hash_params}) do
     user = Guardian.Plug.current_resource(conn)
-    changeset = user |> Ecto.build_assoc(:payment_merchant_hashes) |> PaymentMerchantHash.changeset(merchant_hash_params)
-    case Repo.insert(changeset) do
-      {:ok, hash} ->
-        conn
-        |> put_status(:created)
+
+    check = Repo.get_by(PaymentMerchantHash, [card_token: merchant_hash_params["card_token"], merchant_hash: merchant_hash_params["merchant_hash"], merchant_key: merchant_hash_params["merchant_key"], user_credentials: merchant_hash_params["user_credentials"], user_id: user.id])
+    if(!is_nil(check)) do
+      conn
+        |> put_status(:ok)
         |> render(Spotlight.AppView, "status.json", %{message: "Merchant Hash updated", status: "success"})
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    else
+      changeset = user |> Ecto.build_assoc(:payment_merchant_hashes) |> PaymentMerchantHash.changeset(merchant_hash_params)
+      case Repo.insert(changeset) do
+        {:ok, hash} ->
+          conn
+          |> put_status(:created)
+          |> render(Spotlight.AppView, "status.json", %{message: "Merchant Hash updated", status: "success"})
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+      end
     end
   end
 
-  def get_merchant_hash(conn, %{"merchant_key" => merchant_key, "user_credentials" => user_credentials}) do
+  def get_merchant_hash(conn, %{"merchant_key" => merchant_key}) do
     user = Guardian.Plug.current_resource(conn)
-    q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_credentials == ^user_credentials and p.user_id == ^user.id)
+
+    q = from(p in PaymentMerchantHash, where: p.merchant_key == ^merchant_key and p.user_id == ^user.id)
     conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: Repo.all(q))
+  end
+
+  def get_merchant_hash_by_id(conn, %{"id" => id}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    q = from(p in PaymentMerchantHash, where: p.id == ^id and p.user_id == ^user.id)
+    conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: Repo.all(q))
+  end
+
+  def put_merchant_hash(conn, %{"merchant_hash" =>
+    %{
+      "merchant_key" => merchant_key,
+      "card_token" => card_token,
+      "merchant_hash" => merchant_hash,
+      "card_number_masked" => card_number_masked,
+      "card_type" => card_type
+    }}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    changes = %{"card_number_masked" => card_number_masked, "card_type" => card_type}
+    payment_merchant_hash = Repo.get_by(PaymentMerchantHash, [card_token: card_token, merchant_hash: merchant_hash, merchant_key: merchant_key, user_id: user.id])
+    changeset = payment_merchant_hash |> PaymentMerchantHash.update_changeset(changes)
+
+    case Repo.update(changeset) do
+      {:ok, h} ->
+        conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: [h])
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+    end
   end
 
   def delete_merchant_hash(conn, %{"card_token" => card_token}) do
@@ -139,7 +179,7 @@ defmodule Spotlight.PaymentsController do
       "udf4" => udf4,
       "udf5" => udf5 }) do
     user = Guardian.Plug.current_resource(conn)
-    
+
     key = Application.get_env(:spotlight_api, :PAYMENT_KEY)
     salt = Application.get_env(:spotlight_api, :PAYMENT_SALT)
     user_credentials = Application.get_env(:spotlight_api, :PAYMENT_KEY)<>":"<>user.country_code<>user.phone

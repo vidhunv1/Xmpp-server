@@ -41,8 +41,10 @@
     get "/payment/:transaction_id", PaymentsController, :get
     post "/payment/transaction", PaymentsController, :transaction
     post "/payment/hash", PaymentsController, :store_merchant_hash
+    put "/payment/hash", PaymentsController, :put_merchant_hash
     delete "/payment/hash/:card_token", PaymentsController, :delete_merchant_hash
-    get "/payment/hash/:merchant_key/:user_credentials", PaymentsController, :get_merchant_hash
+    get "/payment/hash/:merchant_key", PaymentsController, :get_merchant_hash
+    get "/payment/hash/id/:id", PaymentsController, :get_merchant_hash_by_id
     post "/payment/get_hash", PaymentsController, :get_payment_hash
 
     get "/contacts/add/:user_id", ContactsController, :add
