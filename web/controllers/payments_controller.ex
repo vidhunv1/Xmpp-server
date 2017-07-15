@@ -111,10 +111,10 @@ defmodule Spotlight.PaymentsController do
     else
       changeset = user |> Ecto.build_assoc(:payment_merchant_hashes) |> PaymentMerchantHash.changeset(merchant_hash_params)
       case Repo.insert(changeset) do
-        {:ok, hash} ->
+        {:ok, h} ->
           conn
           |> put_status(:created)
-          |> render(Spotlight.AppView, "status.json", %{message: "Merchant Hash updated", status: "success"})
+          conn |> put_status(200) |> render("show_merchant_hashes.json", payment_merchant_hashes: [h])
         {:error, changeset} ->
           conn
           |> put_status(:unprocessable_entity)
