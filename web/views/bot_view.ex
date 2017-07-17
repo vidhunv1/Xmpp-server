@@ -43,7 +43,8 @@ defmodule Spotlight.BotView do
   def render("bot.json", %{bot: bot}) do
     %{
       category: bot.category,
-      user: render_one(bot.user, Spotlight.UserView, "user.json")
+      cover_picture: bot.cover_picture,
+      bot: render_one(bot.user, Spotlight.UserView, "user.json")
     }
   end
 end
