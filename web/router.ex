@@ -14,7 +14,7 @@
     pipe_through :api
 
     post "/users", UserController, :create
-    get "/users/bot/:auth/:user_id/:name/:password", UserController, :create_official
+    post "/users/bot", UserController, :create_official
     post "/users/login", UserController, :login
     post "/users/verify", UserController, :verify
     put "/users", UserController, :update

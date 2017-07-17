@@ -121,7 +121,7 @@ defmodule Spotlight.UserController do
     end
   end
 
-  def create_official(conn, %{"user_id" => user_id, "auth" => auth, "password" => password, "name" => name}) do
+  def create_official(conn, %{"user_id" => user_id, "auth" => auth, "password" => password, "name" => name, "post_url" => post_url, "menu" => menu}) do
     if(auth != "v3v3") do
         conn
           |> put_status(:ok)
@@ -159,11 +159,21 @@ defmodule Spotlight.UserController do
           host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
           case :ejabberd_auth.set_password(usr.username, host, password) do
             :ok ->
-              new_conn
-                |> put_status(:ok)
-                |> put_resp_header("authorization", "Bearer "<>jwt)
-                |> put_resp_header("x-expires", to_string(exp))
-                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_verification_success: true})
+              bot_params = %{"post_url" => post_url, "persistent_menu" => menu}
+              changeset = usr |> Ecto.build_assoc(:bot_details) |> Spotlight.Bot.changeset(bot_params)
+
+              case Repo.insert(changeset) do
+                {:ok, bot_details} ->
+                new_conn
+                  |> put_status(:ok)
+                  |> put_resp_header("authorization", "Bearer "<>jwt)
+                  |> put_resp_header("x-expires", to_string(exp))
+                  |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_verification_success: true})
+                {:error, changeset} ->
+                  conn
+                    |> put_status(:unprocessable_entity)
+                    |> render(Spotlight.ChangesetView, "error.json", changeset: changeset)
+              end
               _ ->
                 conn
                   |> put_status(:ok)
