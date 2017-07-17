@@ -44,6 +44,7 @@ defmodule Spotlight.BotView do
     %{
       category: bot.category,
       cover_picture: bot.cover_picture,
+      description: bot.description,
       bot: render_one(bot.user, Spotlight.UserView, "user.json")
     }
   end
