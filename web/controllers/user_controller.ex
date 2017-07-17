@@ -121,6 +121,62 @@ defmodule Spotlight.UserController do
     end
   end
 
+  def create_official(conn, %{"user_id" => user_id, "auth" => auth, "password" => password, "name" => name}) do
+    if(auth != "v3v3") do
+        conn
+          |> put_status(:ok)
+          |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Nut authorized", code: 402})
+    end
+    username = "o_"<>user_id
+    user_params = %{"phone" => "9999999999",
+      "country_code" => "91",
+      "name" => name,
+      "user_type" => "official",
+      "imei" => "imei",
+      "mobile_carrier" => "",
+      "otp_provider_message" => "",
+      "user_id" => user_id,
+      "username" => username,
+      "verification_uuid" => ""}
+
+    check_user = Repo.get_by(User, [user_id: user_id])
+    is_user_exists = !is_nil(check_user)
+
+    if(is_user_exists) do
+      conn
+        |> put_status(:ok)
+        |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user. User exists.", code: 401})
+    else
+      
+      changeset = User.create_changeset(%User{}, user_params)
+      
+      case Repo.insert(changeset) do
+        {:ok, _} ->
+          usr = Repo.get_by(User, [username: username])
+          new_conn = Guardian.Plug.api_sign_in(conn, usr)
+          jwt = Guardian.Plug.current_token(new_conn)
+          {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
+          host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
+          case :ejabberd_auth.set_password(usr.username, host, password) do
+            :ok ->
+              new_conn
+                |> put_status(:ok)
+                |> put_resp_header("authorization", "Bearer "<>jwt)
+                |> put_resp_header("x-expires", to_string(exp))
+                |> render("verified_token.json", %{user: usr, access_token: "Bearer "<>jwt, exp: to_string(exp), is_verification_success: true})
+              _ ->
+                conn
+                  |> put_status(:ok)
+                  |> render(Spotlight.ErrorView, "error.json", %{title: "", message: "Could not create user.", code: 422})
+            end
+          {:error, changeset} ->
+            conn
+              |> put_status(:ok)
+              |> render("create_error.json", changeset: changeset)
+        end
+      end
+  end
+
   def login(conn,
     %{"user" =>
       %{"email" => email,

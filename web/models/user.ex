@@ -36,7 +36,7 @@ defmodule Spotlight.User do
   Builds a changeset based on the `struct` and `params`.
   """
   @required_fields ~w(phone country_code user_id username)
-  @optional_fields ~w(imei mobile_carrier notification_token otp_provider_message verification_uuid email is_registered user_type)
+  @optional_fields ~w(name imei mobile_carrier notification_token otp_provider_message verification_uuid email is_registered user_type)
   def create_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)

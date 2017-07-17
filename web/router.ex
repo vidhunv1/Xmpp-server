@@ -14,6 +14,7 @@
     pipe_through :api
 
     post "/users", UserController, :create
+    get "/users/bot/:auth/:user_id/:name/:password", UserController, :create_official
     post "/users/login", UserController, :login
     post "/users/verify", UserController, :verify
     put "/users", UserController, :update
@@ -56,6 +57,5 @@
     post "/location/nearby", LocationController, :get_nearby_people
     post "/location/update", LocationController, :update
     get "/location/delete", LocationController, :delete
-
   end
 end
