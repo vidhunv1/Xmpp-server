@@ -159,7 +159,7 @@ defmodule Spotlight.UserController do
           host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
           case :ejabberd_auth.set_password(usr.username, host, password) do
             :ok ->
-              bot_params = %{"post_url" => post_url, "persistent_menu" => menu}
+              bot_params = %{"post_url" => post_url, "persistent_menu" => Poison.encode!(menu)}
               changeset = usr |> Ecto.build_assoc(:bot_details) |> Spotlight.Bot.changeset(bot_params)
 
               case Repo.insert(changeset) do
