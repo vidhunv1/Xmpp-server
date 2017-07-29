@@ -99,7 +99,6 @@ defmodule Spotlight.UserController do
             host = Application.get_env(:spotlight_api, Spotlight.Endpoint)[:url][:host]
             case :ejabberd_auth.set_password(user.username, host, password) do
               :ok ->
-                MessageRouter.send_message("o_teamichat", user.username, "Welcome to BotChat! Find any bot in the world.\nIf you have any questions, let me know.")
                 new_conn
                   |> put_status(:ok)
                   |> put_resp_header("authorization", "Bearer "<>jwt)
@@ -209,6 +208,7 @@ defmodule Spotlight.UserController do
         {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
         changeset = User.update_changeset(user, %{"notification_token" => notification_token})
         Repo.update(changeset)
+        IO.inspect %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: nil, verification_uuid: nil}
         new_conn
          |> put_status(:ok)
           |> put_resp_header("authorization", "Bearer "<>jwt)
