@@ -242,6 +242,7 @@ defmodule Spotlight.UserController do
         jwt = Guardian.Plug.current_token(new_conn)
         {:ok, %{"exp" => exp}} = Guardian.Plug.claims(new_conn)
         changeset = User.update_changeset(user, %{"notification_token" => notification_token})
+        IO.inspect %{user: user, access_token: "Bearer "<>jwt, exp: to_string(exp), is_otp_sent: nil, verification_uuid: nil}
         Repo.update(changeset)
         new_conn
           |> put_status(:ok)
